@@ -21,7 +21,6 @@ function Sidebar() {
           <h3 className="nav-title">Operaciones</h3>
           <ul className="nav-list">
             <li><NavLink to="/" className={navLinkClass} end>Dashboard</NavLink></li>
-            <li><NavLink to="/pedidos" className={navLinkClass}>Pedidos</NavLink></li>
           </ul>
         </div>
         
@@ -31,6 +30,7 @@ function Sidebar() {
         <div className="nav-group">
           <h3 className="nav-title">Catálogo</h3>
           <ul className="nav-list">
+            <li><NavLink to="/clientes" className={navLinkClass}>Clientes</NavLink></li>
             <li><NavLink to="/categorias" className={navLinkClass}>Categorías</NavLink></li>
             <li><NavLink to="/productos" className={navLinkClass}>Productos</NavLink></li>
             <li><NavLink to="/inventario" className={navLinkClass}>Inventario</NavLink></li>
@@ -43,7 +43,7 @@ function Sidebar() {
         <div className="nav-group">
           <h3 className="nav-title">Ventas</h3>
           <ul className="nav-list">
-            <li><NavLink to="/clientes" className={navLinkClass}>Clientes</NavLink></li>
+            <li><NavLink to="/pedidos" className={navLinkClass}>Pedidos</NavLink></li>
             <li><NavLink to="/reportes" className={navLinkClass}>Reportes</NavLink></li>
           </ul>
         </div>
