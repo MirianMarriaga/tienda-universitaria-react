@@ -8,7 +8,7 @@ function Layout() {
       <Sidebar />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <Header />
-        <main style={{ flex: 1, overflowY: 'auto', padding: '24px', backgroundColor: '#f8fafc' }}>
+            <main style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 24px 24px' }}>
           <Outlet />
         </main>
       </div>
