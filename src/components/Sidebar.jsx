@@ -1,22 +1,18 @@
 import { NavLink } from 'react-router-dom';
 
 function Sidebar() {
-  // Esta función asigna la clase 'active' automáticamente si la ruta coincide
   const navLinkClass = ({ isActive }) => isActive ? "nav-link active" : "nav-link";
 
   return (
     <aside className="sidebar">
-
-      {/* HEADER */}
+      
       <header className="sidebar-header">
         <h2 className="brand-title">Tienda Unimag</h2>
         <span className="brand-subtitle">Panel administrativo</span>
       </header>
 
-      {/* NAVEGACIÓN PRINCIPAL */}
       <nav className="sidebar-nav" aria-label="Navegación principal">
         
-        {/* Grupo: Operaciones */}
         <div className="nav-group">
           <h3 className="nav-title">Operaciones</h3>
           <ul className="nav-list">
@@ -25,8 +21,6 @@ function Sidebar() {
         </div>
         
         <hr className="divider" aria-hidden="true" />
-
-        {/* Grupo: Catálogo */}
         <div className="nav-group">
           <h3 className="nav-title">Catálogo</h3>
           <ul className="nav-list">
@@ -39,7 +33,6 @@ function Sidebar() {
 
         <hr className="divider" aria-hidden="true" />
 
-        {/* Grupo: Ventas */}
         <div className="nav-group">
           <h3 className="nav-title">Ventas</h3>
           <ul className="nav-list">
@@ -50,7 +43,6 @@ function Sidebar() {
 
       </nav>
 
-      {/* FOOTER - PERFIL */}
       <footer className="sidebar-footer">
         <div className="profile-card">
           <div className="avatar" aria-hidden="true">AC</div>

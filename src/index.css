@@ -302,3 +302,114 @@ code {
 .btn-primary:hover {
   background-color: #1d4ed8;
 }
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+.btn-success {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-success:hover {
+  background-color: #16a34a;
+}
+
+.badge-blue { background-color: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.badge-purple { background-color: #f5f3ff; color: #7c3aed; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.badge-green { background-color: #f0fdf4; color: #16a34a; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.badge-red { background-color: #fef2f2; color: #dc2626; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.badge-gray { background-color: #f3f4f6; color: #6b7280; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.stat-label { font-size: 0.875rem; color: #6b7280; margin: 0 0 8px; }
+.stat-value { font-size: 1.75rem; font-weight: 700; margin: 0 0 4px; color: #111827; }
+.stat-sub { font-size: 0.75rem; margin: 0; }
+.stat-sub.green { color: #16a34a; }
+.stat-sub.red { color: #dc2626; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.dashboard-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 150px;
+  margin-top: 16px;
+}
+
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar {
+  width: 100%;
+  background-color: #2563eb;
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+}
+
+.bar-label { font-size: 0.7rem; color: #6b7280; margin-bottom: 4px; }
+.bar-month { font-size: 0.75rem; color: #6b7280; margin-top: 4px; }
