@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import CategoriesPage from './pages/CategoriesPage'
-
+import InventoriesPage from './pages/InventoriesPage'
 function App() {
   return (
     <Routes>
@@ -10,7 +10,7 @@ function App() {
         <Route path="clientes" element={<h1>Clientes</h1>} />
         <Route path="categorias" element={<CategoriesPage/>} />
         <Route path="productos" element={<h1>Productos</h1>} />
-        <Route path="inventario" element={<h1>Inventario</h1>} />
+        <Route path="inventario" element={<InventoriesPage />} />       
         <Route path="pedidos" element={<h1>Pedidos</h1>} />
         <Route path="reportes" element={<h1>Reportes</h1>} />
       </Route>

@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react'
-import CategoryForm from '../components/CategoryC/CategoryForm'
-import CategoryList from '../components/CategoryC/CategoryList'
+import CategoryForm from '../components/categoryC/CategoryForm'
+import CategoryList from '../components/categoryC/CategoryList'
 import { CategoryContext } from '../context/CategoryContext'
 import { categoryActions } from '../reducers/categoryReducer'
 
