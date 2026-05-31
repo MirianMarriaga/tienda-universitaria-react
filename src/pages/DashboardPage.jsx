@@ -5,8 +5,8 @@ import { customers } from '../data/customers'
 
 function DashboardPage() {
   const [orders, setOrders] = useState([])
-  //const [lowStock, setLowStock] = useState([])
-  //const [monthlyIncomeData, setMonthlyIncomeData] = useState([])
+  const [lowStock, setLowStock] = useState([])
+  const [monthlyIncomeData, setMonthlyIncomeData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 

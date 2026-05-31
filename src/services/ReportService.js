@@ -1,5 +1,5 @@
 const API_URL =
-  `${import.meta.env.VITE_API_URL}/api/products`
+  `${import.meta.env.VITE_API_URL}/api/reports`
 
 function getAuthHeaders() {
   return {
@@ -35,42 +35,32 @@ async function requestJson(
   return response.json()
 }
 
-export async function getAllProducts() {
-  return requestJson(API_URL)
-}
-
-export async function getProductById(id) {
+export async function getBestSellingProducts() {
   return requestJson(
-    `${API_URL}/${id}`
+    `${API_URL}/best-selling`
   )
 }
 
-export async function createProduct(product) {
-  return requestJson(API_URL, {
-    method: 'POST',
-    body: JSON.stringify(product)
-  })
-}
-
-export async function updateProduct(id, product) {
+export async function getMonthlyIncome() {
   return requestJson(
-    `${API_URL}/${id}`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(product)
-    }
+    `${API_URL}/monthly-income`
   )
 }
 
-export async function updateInventory(
-  id,
-  inventory
-) {
+export async function getTopCustomers() {
   return requestJson(
-    `${API_URL}/${id}/inventory`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(inventory)
-    }
+    `${API_URL}/top-customers`
+  )
+}
+
+export async function getLowStockProducts() {
+  return requestJson(
+    `${API_URL}/low-stock`
+  )
+}
+
+export async function getTopCategories() {
+  return requestJson(
+    `${API_URL}/top-categories`
   )
 }
