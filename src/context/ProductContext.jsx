@@ -1,96 +1,48 @@
-import { createContext, useContext, useReducer } from 'react'
-import productReducer from '../reducers/productReducer'
-import { products } from '../data/products'
+import { createContext, useEffect, useReducer } from 'react'
 
-const ProductContext = createContext()
+import { productReducer } from '../reducers/productReducer'
 
-export const ProductProvider = ({ children }) => {
+import { getProducts } from '../services/productService'
+import { getCategories } from '../services/categoryService'
 
+export const ProductContext = createContext()
+
+export function ProductProvider({ children }) {
   const [state, dispatch] = useReducer(productReducer, {
-    products,
+    products: [],
+    categories: [],
     loading: false,
     error: null,
     selected: null
   })
 
-  const addProduct = (product) => {
+  async function loadProducts() {
+    dispatch({ type: 'SET_LOADING', payload: true })
 
-    dispatch({
-      type: 'ADD_PRODUCT',
-      payload: {
-        id: Date.now(),
-        active: true,
-        ...product
-      }
-    })
+    try {
+      const products = await getProducts()
+      const categories = await getCategories()
+
+      dispatch({ type: 'SET_PRODUCTS', payload: products })
+      dispatch({ type: 'SET_CATEGORIES', payload: categories })
+
+    } catch (error) {
+      dispatch({
+        type: 'SET_ERROR',
+        payload: 'Error cargando productos'
+      })
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false })
+    }
   }
 
-  const editProduct = (id, product) => {
-
-    dispatch({
-      type: 'UPDATE_PRODUCT',
-      payload: {
-        id,
-        ...product
-      }
-    })
-
-    dispatch({
-      type: 'CLEAR_SELECTED'
-    })
-  }
-
-  const editInventory = (id, inventory) => {
-
-    const currentProduct =
-      state.products.find(p => p.id === id)
-
-    if (!currentProduct) return
-
-    dispatch({
-      type: 'UPDATE_PRODUCT',
-      payload: {
-        ...currentProduct,
-        inventory
-      }
-    })
-  }
-
-  const selectProduct = (product) => {
-
-    dispatch({
-      type: 'SELECT_PRODUCT',
-      payload: product
-    })
-  }
-
-  const clearSelected = () => {
-
-    dispatch({
-      type: 'CLEAR_SELECTED'
-    })
-  }
+  useEffect(() => {
+    loadProducts()
+  }, [])
 
   return (
-    <ProductContext.Provider
-      value={{
-        products: state.products,
-        loading: state.loading,
-        error: state.error,
-        selected: state.selected,
-        addProduct,
-        editProduct,
-        editInventory,
-        selectProduct,
-        clearSelected
-      }}
-    >
+    <ProductContext.Provider value={{ state, dispatch, loadProducts }}>
       {children}
     </ProductContext.Provider>
   )
 }
-
-export const useProducts = () =>
-  useContext(ProductContext)
-
-export default ProductContext

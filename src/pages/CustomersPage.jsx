@@ -1,23 +1,37 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+
 import CustomerForm from '../components/CustomerC/CustomerForm'
 import CustomerList from '../components/CustomerC/CustomerList'
-import { useCustomers } from '../context/CustomerContext'
 
-const CustomersPage = () => {
+import { CustomerContext } from '../context/CustomerContext'
 
+import {
+  createCustomer,
+  updateCustomer
+} from '../services/customerService'
+
+function CustomersPage() {
+
+  const { state, loadCustomers } = useContext(CustomerContext)
+
+  const [editingCustomer, setEditingCustomer] = useState(null)
   const [showForm, setShowForm] = useState(false)
 
-  const { selected, clearSelected } = useCustomers()
+  async function handleCreate(customerData) {
+    await createCustomer(customerData)
+    await loadCustomers()
+    setShowForm(false)
+  }
 
-  const handleNewCustomer = () => {
+  async function handleUpdate(customerData) {
+    await updateCustomer(customerData)
+    await loadCustomers()
+    setEditingCustomer(null)
+    setShowForm(false)
+  }
 
-    if (showForm) {
-      setShowForm(false)
-      clearSelected()
-      return
-    }
-
-    clearSelected()
+  function handleEdit(customer) {
+    setEditingCustomer(customer)
     setShowForm(true)
   }
 
@@ -32,17 +46,28 @@ const CustomersPage = () => {
 
         <button
           className="btn-primary"
-          onClick={handleNewCustomer}
+          onClick={() => setShowForm(!showForm)}
         >
           {showForm ? 'Cerrar formulario' : '+ Nuevo Cliente'}
         </button>
       </div>
 
-      {(showForm || selected) && (
-        <CustomerForm />
+      {showForm && (
+        <CustomerForm
+          editingCustomer={editingCustomer}
+          onCreate={handleCreate}
+          onUpdate={handleUpdate}
+          onCancel={() => setShowForm(false)}
+        />
       )}
 
-      <CustomerList />
+      <CustomerList
+        customers={state.customers}
+        loading={state.loading}
+        error={state.error}
+        onEdit={handleEdit}
+      />
+
     </section>
   )
 }

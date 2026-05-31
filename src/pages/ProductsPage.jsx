@@ -1,46 +1,69 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+
 import ProductForm from '../components/ProductC/ProductForm'
 import ProductList from '../components/ProductC/ProductList'
-import { useProducts } from '../context/ProductContext'
 
-const ProductsPage = () => {
+import { ProductContext } from '../context/ProductContext'
 
+import {
+  createProduct,
+  updateProduct
+} from '../services/productService'
+
+function ProductsPage() {
+
+  const { state, loadProducts } = useContext(ProductContext)
+
+  const [editingProduct, setEditingProduct] = useState(null)
   const [showForm, setShowForm] = useState(false)
 
-  const { selected, clearSelected } = useProducts()
+  async function handleCreate(productData) {
+    await createProduct(productData)
+    await loadProducts()
+    setShowForm(false)
+  }
 
-  const handleNewProduct = () => {
-
-    if (showForm) {
-      setShowForm(false)
-      clearSelected()
-      return
-    }
-
-    clearSelected()
-    setShowForm(true)
+  async function handleUpdate(productData) {
+    await updateProduct(productData)
+    await loadProducts()
+    setEditingProduct(null)
+    setShowForm(false)
   }
 
   return (
-    <div className="p-6">
+    <section>
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Products</h1>
+      <div className="page-header">
+        <div>
+          <h2>Productos</h2>
+          <p>Administración de productos</p>
+        </div>
 
         <button
-          onClick={handleNewProduct}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="btn-primary"
+          onClick={() => setShowForm(!showForm)}
         >
-          {showForm ? 'Hide Form' : 'New Product'}
+          {showForm ? 'Cerrar formulario' : '+ Nuevo Producto'}
         </button>
       </div>
 
-      {(showForm || selected) && (
-        <ProductForm categories={[]} />
+      {showForm && (
+        <ProductForm
+          editingProduct={editingProduct}
+          categories={state.categories}
+          onCreate={handleCreate}
+          onUpdate={handleUpdate}
+          onCancel={() => setShowForm(false)}
+        />
       )}
 
-      <ProductList />
-    </div>
+      <ProductList
+        products={state.products}
+        categories={state.categories}
+        onEdit={setEditingProduct}
+      />
+
+    </section>
   )
 }
 

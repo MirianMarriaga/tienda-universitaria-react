@@ -1,78 +1,46 @@
-import { createContext, useContext, useReducer } from 'react'
-import customerReducer from '../reducers/customerReducer'
-import { customers } from '../data/customers'
+import { createContext, useEffect, useReducer } from 'react'
+import { customerReducer } from '../reducers/customerReducer'
 
-const CustomerContext = createContext()
+import { getCustomers } from '../services/customerService'
 
-export const CustomerProvider = ({ children }) => {
+export const CustomerContext = createContext()
 
+export function CustomerProvider({ children }) {
   const [state, dispatch] = useReducer(customerReducer, {
-    customers,
+    customers: [],
     loading: false,
     error: null,
     selected: null
   })
 
-  const addCustomer = (customer) => {
+  async function loadCustomers() {
+    dispatch({ type: 'SET_LOADING', payload: true })
 
-    dispatch({
-      type: 'ADD_CUSTOMER',
-      payload: {
-        id: Date.now(),
-        ...customer
-      }
-    })
+    try {
+      const data = await getCustomers()
+
+      dispatch({
+        type: 'SET_CUSTOMERS',
+        payload: data
+      })
+
+    } catch (error) {
+      dispatch({
+        type: 'SET_ERROR',
+        payload: 'Error cargando clientes'
+      })
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false })
+    }
   }
 
-  const editCustomer = (id, customer) => {
-
-    dispatch({
-      type: 'UPDATE_CUSTOMER',
-      payload: {
-        id,
-        ...customer
-      }
-    })
-
-    dispatch({
-      type: 'CLEAR_SELECTED'
-    })
-  }
-
-  const selectCustomer = (customer) => {
-
-    dispatch({
-      type: 'SELECT_CUSTOMER',
-      payload: customer
-    })
-  }
-
-  const clearSelected = () => {
-
-    dispatch({
-      type: 'CLEAR_SELECTED'
-    })
-  }
+  useEffect(() => {
+    loadCustomers()
+  }, [])
 
   return (
-    <CustomerContext.Provider
-      value={{
-        customers: state.customers,
-        loading: state.loading,
-        error: state.error,
-        selected: state.selected,
-        addCustomer,
-        editCustomer,
-        selectCustomer,
-        clearSelected
-      }}
-    >
+    <CustomerContext.Provider value={{ state, dispatch, loadCustomers }}>
       {children}
     </CustomerContext.Provider>
   )
 }
-
-export const useCustomers = () =>
-  useContext(CustomerContext)
-
-export default CustomerContext
