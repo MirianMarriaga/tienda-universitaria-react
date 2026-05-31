@@ -1,217 +1,237 @@
-import { useState, useEffect } from 'react'
-import { useProducts } from '../../context/ProductContext'
+import { useEffect, useState } from 'react'
 
-const ProductForm = ({ categories }) => {
-
-  const { addProduct, editProduct, selected, clearSelected } = useProducts()
-
-
-  const [form, setForm] = useState({
-    sku: '',
-    category: '',  
-    name: '',
-    description: '',
-    price: '',
-    active: true    
-  })
+function ProductForm({
+  editingProduct,
+  categories,
+  onCreate,
+  onUpdate,
+  onCancel
+}) {
+  const [sku, setSku] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [price, setPrice] = useState('')
+  const [active, setActive] = useState(true)
 
   const [errors, setErrors] = useState({})
 
-
   useEffect(() => {
-    if (selected) {
-      setForm({
-        sku: selected.sku || '',
-        category: selected.categoryId || '',
-        name: selected.name || '',
-        description: selected.description || '',
-        price: selected.price || '',
-        active: selected.active ?? true
-      })
+    if (editingProduct) {
+      setSku(editingProduct.sku)
+      setCategoryId(editingProduct.categoryId)
+      setName(editingProduct.name)
+      setDescription(editingProduct.description)
+      setPrice(editingProduct.price)
+      setActive(editingProduct.active)
     } else {
-      setForm({
-        sku: '',
-        category: '',
-        name: '',
-        description: '',
-        price: '',
-        active: true
-      })
+      setSku('')
+      setCategoryId('')
+      setName('')
+      setDescription('')
+      setPrice('')
+      setActive(true)
     }
+
     setErrors({})
-  }, [selected])
+  }, [editingProduct])
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
-  }
-
- 
-  const validate = () => {
+  function validate() {
     const newErrors = {}
-    if (!form.sku.trim())         newErrors.sku = 'SKU is required'
-    if (!form.category)           newErrors.category = 'Category is required'
-    if (!form.name.trim())        newErrors.name = 'Name is required'
-    if (!form.price)              newErrors.price = 'Price is required'
-    if (Number(form.price) <= 0)  newErrors.price = 'Price must be greater than zero'
+
+    if (!sku.trim()) {
+      newErrors.sku =
+        'El SKU es obligatorio'
+    }
+
+    if (!categoryId) {
+      newErrors.categoryId =
+        'La categoría es obligatoria'
+    }
+
+    if (!name.trim()) {
+      newErrors.name =
+        'El nombre es obligatorio'
+    }
+
+    if (!price) {
+      newErrors.price =
+        'El precio es obligatorio'
+    }
+
+    if (Number(price) <= 0) {
+      newErrors.price =
+        'El precio debe ser mayor a 0'
+    }
+
     return newErrors
   }
 
-  const handleSubmit = async (e) => {
+  function handleSubmit(e) {
     e.preventDefault()
 
     const validationErrors = validate()
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       return
     }
 
-    if (selected) {
-
-      await editProduct(selected.id, {
-        category: Number(form.category),
-        name: form.name,
-        description: form.description,
-        price: Number(form.price),
-        active: form.active
-      })
-    } else {
-
-      await addProduct({
-        sku: form.sku,
-        category: Number(form.category),
-        name: form.name,
-        description: form.description,
-        price: Number(form.price)
-      })
+    const productData = {
+      sku,
+      categoryId: Number(categoryId),
+      name,
+      description,
+      price: Number(price),
+      active
     }
 
-    clearSelected()
+    if (editingProduct) {
+      onUpdate({
+        ...editingProduct,
+        ...productData
+      })
+    } else {
+      onCreate(productData)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-4">
-      <h2 className="text-lg font-bold mb-4">
-        {selected ? 'Edit Product' : 'New Product'}
-      </h2>
+    <form
+      className="form-container"
+      onSubmit={handleSubmit}
+    >
+      <h3>
+        {editingProduct
+          ? 'Editar producto'
+          : 'Nuevo producto'}
+      </h3>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="form-grid">
 
-      
         <div>
-          <label className="block text-sm font-medium mb-1">SKU</label>
+          <label>SKU</label>
+
           <input
-            name="sku"
-            value={form.sku}
-            onChange={handleChange}
-            disabled={!!selected}
-            className={`w-full border rounded p-2 ${
-              selected ? 'bg-gray-100' : ''
-            } ${errors.sku ? 'border-red-500' : 'border-gray-300'}`}
+            className="input"
+            type="text"
+            value={sku}
+            onChange={(e) =>
+              setSku(e.target.value)
+            }
           />
-          {errors.sku && <p className="text-red-500 text-sm mt-1">{errors.sku}</p>}
+
+          {errors.sku && (
+            <p className="error-text">
+              {errors.sku}
+            </p>
+          )}
         </div>
 
-      
         <div>
-          <label className="block text-sm font-medium mb-1">Category</label>
+          <label>Categoría</label>
+
           <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            className={`w-full border rounded p-2 ${
-              errors.category ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className="input"
+            value={categoryId}
+            onChange={(e) =>
+              setCategoryId(e.target.value)
+            }
           >
-            <option value="">Select category</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            <option value="">
+              Seleccione
+            </option>
+
+            {categories.map(category => (
+              <option
+                key={category.id}
+                value={category.id}
+              >
+                {category.name}
+              </option>
             ))}
           </select>
-          {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+
+          {errors.categoryId && (
+            <p className="error-text">
+              {errors.categoryId}
+            </p>
+          )}
         </div>
 
-     
         <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
+          <label>Nombre</label>
+
           <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            className={`w-full border rounded p-2 ${
-              errors.name ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className="input"
+            type="text"
+            value={name}
+            onChange={(e) =>
+              setName(e.target.value)
+            }
           />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+
+          {errors.name && (
+            <p className="error-text">
+              {errors.name}
+            </p>
+          )}
         </div>
 
-       
         <div>
-          <label className="block text-sm font-medium mb-1">Price</label>
+          <label>Precio</label>
+
           <input
-            name="price"
+            className="input"
             type="number"
-            min="0"
-            step="0.01"
-            value={form.price}
-            onChange={handleChange}
-            className={`w-full border rounded p-2 ${
-              errors.price ? 'border-red-500' : 'border-gray-300'
-            }`}
+            value={price}
+            onChange={(e) =>
+              setPrice(e.target.value)
+            }
           />
-          {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+
+          {errors.price && (
+            <p className="error-text">
+              {errors.price}
+            </p>
+          )}
         </div>
 
-     
-        <div className="col-span-2">
-          <label className="block text-sm font-medium mb-1">Description</label>
+        <div>
+          <label>Descripción</label>
+
           <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded p-2"
-            rows={3}
+            className="input"
+            value={description}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
           />
         </div>
 
-   
-        {selected && (
-          <div className="col-span-2 flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="active"
-              id="active"
-              checked={form.active}
-              onChange={handleChange}
-              className="w-4 h-4"
-            />
-            <label htmlFor="active" className="text-sm font-medium">
-              Active
-            </label>
-          </div>
-        )}
       </div>
 
-      <div className="flex gap-2 mt-4">
-        <button
-          type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          {selected ? 'Update' : 'Create'}
-        </button>
+      <div className="form-actions">
 
-        {selected && (
+        {editingProduct && (
           <button
             type="button"
-            onClick={clearSelected}
-            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+            className="btn-secondary"
+            onClick={onCancel}
           >
-            Cancel
+            Cancelar
           </button>
         )}
+
+        <button
+          type="submit"
+          className="btn-primary"
+        >
+          {editingProduct
+            ? 'Guardar cambios'
+            : '+ Nuevo Producto'}
+        </button>
+
       </div>
     </form>
   )

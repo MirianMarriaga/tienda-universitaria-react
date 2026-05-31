@@ -1,78 +1,24 @@
-import { createContext, useContext, useReducer } from 'react'
-import customerReducer from '../reducers/customerReducer'
-import { customers } from '../data/customers'
+import { createContext, useReducer } from 'react'
 
-const CustomerContext = createContext()
+import { customers as initialCustomers } from '../data/customers'
 
-export const CustomerProvider = ({ children }) => {
+import { customerReducer } from '../reducers/customerReducer'
+
+export const CustomerContext = createContext()
+
+export function CustomerProvider({ children }) {
 
   const [state, dispatch] = useReducer(customerReducer, {
-    customers,
+
+    customers: initialCustomers,
     loading: false,
     error: null,
     selected: null
   })
 
-  const addCustomer = (customer) => {
-
-    dispatch({
-      type: 'ADD_CUSTOMER',
-      payload: {
-        id: Date.now(),
-        ...customer
-      }
-    })
-  }
-
-  const editCustomer = (id, customer) => {
-
-    dispatch({
-      type: 'UPDATE_CUSTOMER',
-      payload: {
-        id,
-        ...customer
-      }
-    })
-
-    dispatch({
-      type: 'CLEAR_SELECTED'
-    })
-  }
-
-  const selectCustomer = (customer) => {
-
-    dispatch({
-      type: 'SELECT_CUSTOMER',
-      payload: customer
-    })
-  }
-
-  const clearSelected = () => {
-
-    dispatch({
-      type: 'CLEAR_SELECTED'
-    })
-  }
-
   return (
-    <CustomerContext.Provider
-      value={{
-        customers: state.customers,
-        loading: state.loading,
-        error: state.error,
-        selected: state.selected,
-        addCustomer,
-        editCustomer,
-        selectCustomer,
-        clearSelected
-      }}
-    >
+    <CustomerContext.Provider value={{ state, dispatch }}>
       {children}
     </CustomerContext.Provider>
   )
 }
-
-export const useCustomers = () =>
-  useContext(CustomerContext)
-
-export default CustomerContext

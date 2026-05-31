@@ -1,204 +1,228 @@
-import { useState, useEffect } from 'react'
-import { useCustomers } from '../../context/CustomerContext'
+import { useEffect, useState } from 'react'
 
-const CustomerForm = () => {
-
-  const { addCustomer, editCustomer, selected, clearSelected } = useCustomers()
-
-  // Estado del formulario — coincide exactamente con CustomerCreateRequest
-  // { identificationNumber, fullName, email, phone, status }
-  const [form, setForm] = useState({
-    identificationNumber: '',
-    fullName: '',
-    email: '',
-    phone: '',
-    status: 'ACTIVE'   // ← siempre presente, tanto en create como en update
-  })
+function CustomerForm({
+  editingCustomer,
+  onCreate,
+  onUpdate,
+  onCancel
+}) {
+  const [identificationNumber, setIdentificationNumber] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [status, setStatus] = useState('ACTIVE')
 
   const [errors, setErrors] = useState({})
 
-  // Cuando cambia "selected" llena o limpia el formulario
   useEffect(() => {
-    if (selected) {
-      setForm({
-        identificationNumber: selected.identificationNumber || '',
-        fullName: selected.fullName || '',
-        email: selected.email || '',
-        phone: selected.phone || '',
-        status: selected.status || 'ACTIVE'
-      })
+    if (editingCustomer) {
+      setIdentificationNumber(editingCustomer.identificationNumber)
+      setFullName(editingCustomer.fullName)
+      setEmail(editingCustomer.email)
+      setPhone(editingCustomer.phone)
+      setStatus(editingCustomer.status)
     } else {
-      setForm({
-        identificationNumber: '',
-        fullName: '',
-        email: '',
-        phone: '',
-        status: 'ACTIVE'
-      })
+      setIdentificationNumber('')
+      setFullName('')
+      setEmail('')
+      setPhone('')
+      setStatus('ACTIVE')
     }
+
     setErrors({})
-  }, [selected])
+  }, [editingCustomer])
 
-  const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-  }
-
-  const validate = () => {
+  function validate() {
     const newErrors = {}
-    if (!form.identificationNumber.trim())
-      newErrors.identificationNumber = 'ID Number is required'
-    if (!form.fullName.trim())
-      newErrors.fullName = 'Full name is required'
-    if (!form.email.trim())
-      newErrors.email = 'Email is required'
-    if (!/\S+@\S+\.\S+/.test(form.email))
-      newErrors.email = 'Email is not valid'
-    if (!form.phone.trim())
-      newErrors.phone = 'Phone is required'
+
+    if (!identificationNumber.trim()) {
+      newErrors.identificationNumber =
+        'La identificación es obligatoria'
+    }
+
+    if (!fullName.trim()) {
+      newErrors.fullName =
+        'El nombre es obligatorio'
+    }
+
+    if (!email.trim()) {
+      newErrors.email =
+        'El email es obligatorio'
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email =
+        'El email no es válido'
+    }
+
+    if (!phone.trim()) {
+      newErrors.phone =
+        'El teléfono es obligatorio'
+    }
+
     return newErrors
   }
 
-  const handleSubmit = async (e) => {
+  function handleSubmit(e) {
     e.preventDefault()
 
     const validationErrors = validate()
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       return
     }
 
-    if (selected) {
-      // PUT /api/customers/{id}
-      // CustomerUpdateRequest: { fullName, email, phone, status }
-      await editCustomer(selected.id, {
-        fullName: form.fullName,
-        email: form.email,
-        phone: form.phone,
-        status: form.status
-      })
-    } else {
-      // POST /api/customers
-      // CustomerCreateRequest: { identificationNumber, fullName, email, phone, status }
-      await addCustomer({
-        identificationNumber: form.identificationNumber,
-        fullName: form.fullName,
-        email: form.email,
-        phone: form.phone,
-        status: form.status
-      })
+    const customerData = {
+      identificationNumber,
+      fullName,
+      email,
+      phone,
+      status
     }
 
-    clearSelected()
+    if (editingCustomer) {
+      onUpdate({
+        ...editingCustomer,
+        ...customerData
+      })
+    } else {
+      onCreate(customerData)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-4">
-      <h2 className="text-lg font-bold mb-4">
-        {selected ? 'Edit Customer' : 'New Customer'}
-      </h2>
+    <form
+      className="form-container"
+      onSubmit={handleSubmit}
+    >
+      <h3>
+        {editingCustomer
+          ? 'Editar cliente'
+          : 'Nuevo cliente'}
+      </h3>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="form-grid">
 
-        {/* ID Number — solo en create */}
-        {!selected && (
-          <div>
-            <label className="block text-sm font-medium mb-1">ID Number</label>
-            <input
-              name="identificationNumber"
-              value={form.identificationNumber}
-              onChange={handleChange}
-              className={`w-full border rounded p-2 ${
-                errors.identificationNumber ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            {errors.identificationNumber && (
-              <p className="text-red-500 text-sm mt-1">{errors.identificationNumber}</p>
-            )}
-          </div>
-        )}
-
-        {/* Full Name */}
         <div>
-          <label className="block text-sm font-medium mb-1">Full Name</label>
+          <label>Identificación</label>
+
           <input
-            name="fullName"
-            value={form.fullName}
-            onChange={handleChange}
-            className={`w-full border rounded p-2 ${
-              errors.fullName ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className="input"
+            type="text"
+            value={identificationNumber}
+            onChange={(e) =>
+              setIdentificationNumber(e.target.value)
+            }
           />
+
+          {errors.identificationNumber && (
+            <p className="error-text">
+              {errors.identificationNumber}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label>Nombre completo</label>
+
+          <input
+            className="input"
+            type="text"
+            value={fullName}
+            onChange={(e) =>
+              setFullName(e.target.value)
+            }
+          />
+
           {errors.fullName && (
-            <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+            <p className="error-text">
+              {errors.fullName}
+            </p>
           )}
         </div>
 
-        {/* Email */}
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label>Email</label>
+
           <input
-            name="email"
+            className="input"
             type="email"
-            value={form.email}
-            onChange={handleChange}
-            className={`w-full border rounded p-2 ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+            value={email}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
           />
+
           {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            <p className="error-text">
+              {errors.email}
+            </p>
           )}
         </div>
 
-        {/* Phone */}
         <div>
-          <label className="block text-sm font-medium mb-1">Phone</label>
+          <label>Teléfono</label>
+
           <input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            className={`w-full border rounded p-2 ${
-              errors.phone ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className="input"
+            type="text"
+            value={phone}
+            onChange={(e) =>
+              setPhone(e.target.value)
+            }
           />
+
           {errors.phone && (
-            <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+            <p className="error-text">
+              {errors.phone}
+            </p>
           )}
         </div>
 
-        {/* Status — siempre visible tanto en create como en update */}
         <div>
-          <label className="block text-sm font-medium mb-1">Status</label>
+          <label>Estado</label>
+
           <select
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded p-2"
+            className="input"
+            value={status}
+            onChange={(e) =>
+              setStatus(e.target.value)
+            }
           >
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="INACTIVE">INACTIVE</option>
+            <option value="ACTIVE">
+              ACTIVE
+            </option>
+
+            <option value="INACTIVE">
+              INACTIVE
+            </option>
           </select>
         </div>
 
       </div>
 
-      <div className="flex gap-2 mt-4">
-        <button
-          type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          {selected ? 'Update' : 'Create'}
-        </button>
+      <div className="form-actions">
 
-        {selected && (
+        {editingCustomer && (
           <button
             type="button"
-            onClick={clearSelected}
-            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+            className="btn-secondary"
+            onClick={onCancel}
           >
-            Cancel
+            Cancelar
           </button>
         )}
+
+        <button
+          type="submit"
+          className="btn-primary"
+        >
+          {editingCustomer
+            ? 'Guardar cambios'
+            : '+ Nuevo Cliente'}
+        </button>
+
       </div>
     </form>
   )

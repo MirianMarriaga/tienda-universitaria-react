@@ -1,23 +1,66 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+
 import CustomerForm from '../components/CustomerC/CustomerForm'
 import CustomerList from '../components/CustomerC/CustomerList'
-import { useCustomers } from '../context/CustomerContext'
 
-const CustomersPage = () => {
+import { CustomerContext } from '../context/CustomerContext'
+import { customerActions } from '../reducers/customerReducer'
 
+function CustomersPage() {
+
+  const { state, dispatch } = useContext(CustomerContext)
+
+  const [editingCustomer, setEditingCustomer] = useState(null)
   const [showForm, setShowForm] = useState(false)
 
-  const { selected, clearSelected } = useCustomers()
+  function handleCreate(newCustomer) {
 
-  const handleNewCustomer = () => {
+    dispatch({
+      type: customerActions.ADD_CUSTOMER,
+      payload: {
+        id: Date.now(),
+        ...newCustomer
+      }
+    })
+
+    setShowForm(false)
+  }
+
+  function handleUpdate(updatedCustomer) {
+
+    dispatch({
+      type: customerActions.UPDATE_CUSTOMER,
+      payload: {
+        ...editingCustomer,
+        ...updatedCustomer
+      }
+    })
+
+    setEditingCustomer(null)
+    setShowForm(false)
+  }
+
+  function handleEdit(customer) {
+
+    setEditingCustomer(customer)
+    setShowForm(true)
+  }
+
+  function handleCancel() {
+
+    setEditingCustomer(null)
+    setShowForm(false)
+  }
+
+  function handleToggleForm() {
 
     if (showForm) {
+      setEditingCustomer(null)
       setShowForm(false)
-      clearSelected()
       return
     }
 
-    clearSelected()
+    setEditingCustomer(null)
     setShowForm(true)
   }
 
@@ -25,6 +68,7 @@ const CustomersPage = () => {
     <section>
 
       <div className="page-header">
+
         <div>
           <h2>Clientes</h2>
           <p>Administración de clientes</p>
@@ -32,17 +76,31 @@ const CustomersPage = () => {
 
         <button
           className="btn-primary"
-          onClick={handleNewCustomer}
+          onClick={handleToggleForm}
         >
-          {showForm ? 'Cerrar formulario' : '+ Nuevo Cliente'}
+          {showForm
+            ? 'Cerrar formulario'
+            : '+ Nuevo Cliente'}
         </button>
+
       </div>
 
-      {(showForm || selected) && (
-        <CustomerForm />
+      {showForm && (
+        <CustomerForm
+          editingCustomer={editingCustomer}
+          onCreate={handleCreate}
+          onUpdate={handleUpdate}
+          onCancel={handleCancel}
+        />
       )}
 
-      <CustomerList />
+      <CustomerList
+        customers={state.customers}
+        loading={state.loading}
+        error={state.error}
+        onEdit={handleEdit}
+      />
+
     </section>
   )
 }

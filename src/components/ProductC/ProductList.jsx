@@ -1,56 +1,120 @@
-
-import { useProducts } from '../../context/ProductContext'
-
-const ProductList = () => {
-
-  const { products, loading, error, selectProduct } = useProducts()
-
-  if (loading) return <p className="text-center">Loading products...</p>
-  if (error)   return <p className="text-red-500 text-center">{error}</p>
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse border border-gray-300">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border border-gray-300 p-2">SKU</th>
-            <th className="border border-gray-300 p-2">Name</th>
-            <th className="border border-gray-300 p-2">Category</th>
-            <th className="border border-gray-300 p-2">Price</th>
-            <th className="border border-gray-300 p-2">Active</th>
-            <th className="border border-gray-300 p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map(product => (
-            <tr key={product.id} className="hover:bg-gray-50">
-              <td className="border border-gray-300 p-2">{product.sku}</td>
-              <td className="border border-gray-300 p-2">{product.name}</td>
-              <td className="border border-gray-300 p-2">{product.categoryId}</td>
-              <td className="border border-gray-300 p-2">
-                ${product.price?.toLocaleString()}
-              </td>
-              <td className="border border-gray-300 p-2">
-                {product.active ? '✅' : '❌'}
-              </td>
-              <td className="border border-gray-300 p-2">
-                <button
-                  onClick={() => selectProduct(product)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                >
-                  Edit
-                </button>
-              </td>
+function ProductList({
+    products = [],
+    categories = [],
+    onEdit
+  }) {
+  
+    function getCategoryName(categoryId) {
+  
+      const category = categories.find(
+        (c) => c.id === categoryId
+      )
+  
+      return category
+        ? category.name
+        : 'Sin categoría'
+    }
+  
+    function getStatusClass(active) {
+  
+      return active
+        ? 'badge-success'
+        : 'badge-error'
+    }
+  
+    return (
+  
+      <div>
+  
+        <table className="table">
+  
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>SKU</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {products.length === 0 && (
-        <p className="text-center text-gray-500 mt-4">No products found</p>
-      )}
-    </div>
-  )
-}
-
-export default ProductList
+          </thead>
+  
+          <tbody>
+  
+            {products.map((product) => (
+  
+              <tr key={product.id}>
+  
+                <td>
+                  <div className="product-name-cell">
+  
+                    <span className="product-icon">
+                      📦
+                    </span>
+  
+                    <strong>
+                      {product.name}
+                    </strong>
+  
+                  </div>
+                </td>
+  
+                <td>{product.sku}</td>
+  
+                <td>
+                  {getCategoryName(
+                    product.categoryId
+                  )}
+                </td>
+  
+                <td>
+                  $
+                  {Number(
+                    product.price
+                  ).toLocaleString()}
+                </td>
+  
+                <td>
+  
+                  <span
+                    className={getStatusClass(
+                      product.active
+                    )}
+                  >
+                    {product.active
+                      ? 'Activo'
+                      : 'Inactivo'}
+                  </span>
+  
+                </td>
+  
+                <td>
+  
+                  <button
+                    className="btn-outline"
+                    onClick={() => onEdit(product)}
+                  >
+                    Editar
+                  </button>
+  
+                </td>
+  
+              </tr>
+  
+            ))}
+  
+          </tbody>
+  
+        </table>
+  
+        {products.length === 0 && (
+          <p className="center-text muted-text">
+            No products found
+          </p>
+        )}
+  
+      </div>
+    )
+  }
+  
+  export default ProductList

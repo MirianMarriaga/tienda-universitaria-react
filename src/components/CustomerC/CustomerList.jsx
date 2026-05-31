@@ -1,57 +1,92 @@
-import { useCustomers } from '../../context/CustomerContext'
 
-const CustomerList = () => {
+function CustomerList({
+  customers,
+  loading,
+  error,
+  onEdit
+}) {
 
-  const { customers, loading, error, selectCustomer } = useCustomers()
+  if (loading) {
+    return (
+      <p className="center-text">
+        Loading customers...
+      </p>
+    )
+  }
 
-  if (loading) return <p className="text-center">Loading customers...</p>
-  if (error)   return <p className="text-red-500 text-center">{error}</p>
+  if (error) {
+    return (
+      <p className="center-text error-text">
+        {error}
+      </p>
+    )
+  }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse border border-gray-300">
-        <thead className="bg-gray-100">
+    <div>
+
+      <table className="table">
+
+        <thead>
           <tr>
-            <th className="border border-gray-300 p-2">Full Name</th>
-            <th className="border border-gray-300 p-2">ID Number</th>
-            <th className="border border-gray-300 p-2">Email</th>
-            <th className="border border-gray-300 p-2">Phone</th>
-            <th className="border border-gray-300 p-2">Status</th>
-            <th className="border border-gray-300 p-2">Actions</th>
+            <th>Full Name</th>
+            <th>ID Number</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
+
         <tbody>
-          {customers.map(customer => (
-            <tr key={customer.id} className="hover:bg-gray-50">
-              <td className="border border-gray-300 p-2">{customer.fullName}</td>
-              <td className="border border-gray-300 p-2">{customer.identificationNumber}</td>
-              <td className="border border-gray-300 p-2">{customer.email}</td>
-              <td className="border border-gray-300 p-2">{customer.phone}</td>
-              <td className="border border-gray-300 p-2">
-                <span className={`px-2 py-1 rounded text-sm ${
-                  customer.status === 'ACTIVE'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
-                }`}>
+
+          {customers.map((customer) => (
+            <tr key={customer.id}>
+
+              <td>{customer.fullName}</td>
+
+              <td>
+                {customer.identificationNumber}
+              </td>
+
+              <td>{customer.email}</td>
+
+              <td>{customer.phone}</td>
+
+              <td>
+                <span
+                  className={
+                    customer.status === 'ACTIVE'
+                      ? 'badge-success'
+                      : 'badge-error'
+                  }
+                >
                   {customer.status}
                 </span>
               </td>
-              <td className="border border-gray-300 p-2">
+
+              <td>
                 <button
-                  onClick={() => selectCustomer(customer)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  className="btn-primary"
+                  onClick={() => onEdit(customer)}
                 >
                   Edit
                 </button>
               </td>
+
             </tr>
           ))}
+
         </tbody>
+
       </table>
 
       {customers.length === 0 && (
-        <p className="text-center text-gray-500 mt-4">No customers found</p>
+        <p className="center-text muted-text">
+          No customers found
+        </p>
       )}
+
     </div>
   )
 }
