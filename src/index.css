@@ -379,6 +379,12 @@ code {
   margin-bottom: 16px;
 }
 
+.reports-container {
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
 .alert-item {
   display: flex;
   justify-content: space-between;
@@ -413,3 +419,20 @@ code {
 
 .bar-label { font-size: 0.7rem; color: #6b7280; margin-bottom: 4px; }
 .bar-month { font-size: 0.75rem; color: #6b7280; margin-top: 4px; }
+
+.report-card {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-sizing: border-box;
+  margin-bottom: 24px;
+}
+
+.report-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px;
+}

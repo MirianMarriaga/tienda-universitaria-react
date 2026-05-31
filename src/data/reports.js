@@ -28,3 +28,8 @@ export const lowStockProducts = [
   { productId: 2, productName: "Libro Cálculo I",   availableStock: 3,  minimumStock: 10 },
   { productId: 5, productName: "Mug institucional", availableStock: 2,  minimumStock: 6  }
 ]
+
+export const topCategories = [
+  { categoryId: 1, categoryName: "Tecnología", totalQuantitySold: 120 },
+  { categoryId: 2, categoryName: "Papelería", totalQuantitySold: 80 }
+]

@@ -1,36 +1,36 @@
-export const productActions = {
-    SET_PRODUCTS:   'SET_PRODUCTS',
-    ADD_PRODUCT:    'ADD_PRODUCT',
-    UPDATE_PRODUCT: 'UPDATE_PRODUCT',
-    SET_LOADING:    'SET_LOADING',
-    SET_ERROR:      'SET_ERROR',
-    SELECT_PRODUCT: 'SELECT_PRODUCT',
-    CLEAR_SELECTED: 'CLEAR_SELECTED'
+export const customerActions = {
+    SET_CUSTOMERS:   'SET_CUSTOMERS',
+    ADD_CUSTOMER:    'ADD_CUSTOMER',
+    UPDATE_CUSTOMER: 'UPDATE_CUSTOMER',
+    SET_LOADING:     'SET_LOADING',
+    SET_ERROR:       'SET_ERROR',
+    SELECT_CUSTOMER: 'SELECT_CUSTOMER',
+    CLEAR_SELECTED:  'CLEAR_SELECTED'
   }
   
-  export function productReducer(state, action) {
+  export function customerReducer(state, action) {
     switch (action.type) {
   
-      case productActions.SET_PRODUCTS:
+      case customerActions.SET_CUSTOMERS:
         return {
           ...state,
-          products: action.payload,
+          customers: action.payload,
           loading: false,
           error: null
         }
   
-      case productActions.ADD_PRODUCT:
+      case customerActions.ADD_CUSTOMER:
         return {
           ...state,
-          products: [...state.products, action.payload],
+          customers: [...state.customers, action.payload],
           loading: false,
           error: null
         }
   
-      case productActions.UPDATE_PRODUCT:
+      case customerActions.UPDATE_CUSTOMER:
         return {
           ...state,
-          products: state.products.map((item) =>
+          customers: state.customers.map((item) =>
             item.id === action.payload.id
               ? { ...item, ...action.payload, updatedAt: new Date().toISOString() }
               : item
@@ -39,27 +39,27 @@ export const productActions = {
           error: null
         }
   
-      case productActions.SET_LOADING:
+      case customerActions.SET_LOADING:
         return {
           ...state,
           loading: action.payload,
           error: null
         }
   
-      case productActions.SET_ERROR:
+      case customerActions.SET_ERROR:
         return {
           ...state,
           error: action.payload,
           loading: false
         }
   
-      case productActions.SELECT_PRODUCT:
+      case customerActions.SELECT_CUSTOMER:
         return {
           ...state,
           selected: action.payload
         }
   
-      case productActions.CLEAR_SELECTED:
+      case customerActions.CLEAR_SELECTED:
         return {
           ...state,
           selected: null
@@ -68,4 +68,4 @@ export const productActions = {
       default:
         return state
     }
-  } export default productReducer
+  } export default customerReducer
