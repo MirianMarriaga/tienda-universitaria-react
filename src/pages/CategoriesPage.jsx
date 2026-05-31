@@ -1,23 +1,40 @@
-import { useContext, useState } from 'react'
+import { useEffect, useState } from 'react'
 import CategoryForm from '../components/CategoryC/CategoryForm'
 import CategoryList from '../components/CategoryC/CategoryList'
-import { CategoryContext } from '../context/CategoryContext'
-import { categoryActions } from '../reducers/categoryReducer'
+import { createCategory, getCategories } from '../services/categoryService'
 
 function CategoriesPage() {
-  const { state, dispatch } = useContext(CategoryContext)
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [editingCategory, setEditingCategory] = useState(null)
   const [showForm, setShowForm] = useState(false)
 
-  function handleCreate(newCategory) {
-    dispatch({ type: categoryActions.ADD_CATEGORY, payload: newCategory })
-    setShowForm(false)
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
+  async function loadCategories() {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await getCategories()
+      setCategories(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  function handleUpdate(updatedCategory) {
-    dispatch({ type: categoryActions.UPDATE_CATEGORY, payload: updatedCategory })
-    setEditingCategory(null)
-    setShowForm(false)
+  async function handleCreate(newCategory) {
+    try {
+      const created = await createCategory(newCategory)
+      setCategories((prev) => [...prev, created])
+      setShowForm(false)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   function handleEdit(category) {
@@ -42,17 +59,20 @@ function CategoriesPage() {
         </button>
       </div>
 
+      {loading && <p>Cargando categorías...</p>}
+      {error && <p style={{ color: '#ef4444' }}>{error}</p>}
+
       {showForm && (
         <CategoryForm
           editingCategory={editingCategory}
           onCreate={handleCreate}
-          onUpdate={handleUpdate}
+          onUpdate={() => {}}
           onCancel={handleCancel}
         />
       )}
 
       <CategoryList
-        categories={state.categories}
+        categories={categories}
         onEdit={handleEdit}
       />
     </section>

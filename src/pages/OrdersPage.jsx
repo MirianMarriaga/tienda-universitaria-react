@@ -1,36 +1,63 @@
-import { useContext, useState } from 'react'
-import OrderForm from '../components/orderC/OrderForm'
-import OrderList from '../components/orderC/OrderList'
+import { useContext, useEffect, useState } from 'react'
 import OrderDetailModal from '../components/OrderC/OrderDetailModal'
-import { OrderContext } from '../context/OrderContext'
-import { orderActions } from '../reducers/orderReducer'
+import OrderForm from '../components/OrderC/OrderForm'
+import OrderList from '../components/OrderC/OrderList'
+import { InventoryContext } from '../context/InventoryContext'
+import { cancelOrder, createOrder, deliverOrder, filterOrders, getOrders, payOrder, shipOrder } from '../services/orderService'
 
 function OrdersPage() {
-  const { state, dispatch } = useContext(OrderContext)
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
 
-  function handleCreate(newOrder) {
-    dispatch({ type: orderActions.ADD_ORDER, payload: newOrder })
-    setShowForm(false)
+  useEffect(() => {
+    loadOrders()
+  }, [])
+
+  async function loadOrders() {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await getOrders()
+      setOrders(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  function handleStatusChange(orderId, newStatus) {
-    dispatch({
-      type: orderActions.UPDATE_ORDER_STATUS,
-      payload: { id: orderId, status: newStatus }
-    })
+  async function handleCreate(orderData) {
+    try {
+      const created = await createOrder(orderData)
+      setOrders((prev) => [created, ...prev])
+      setShowForm(false)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
-  function handleCancel(orderId) {
-    dispatch({
-      type: orderActions.CANCEL_ORDER,
-      payload: { id: orderId }
-    })
+  async function handleStatusChange(orderId, newStatus) {
+    try {
+      let updated
+      if (newStatus === 'PAID') updated = await payOrder(orderId)
+      else if (newStatus === 'SHIPPED') updated = await shipOrder(orderId)
+      else if (newStatus === 'DELIVERED') updated = await deliverOrder(orderId)
+      setOrders((prev) => prev.map((o) => o.id === orderId ? updated : o))
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
-  function handleViewDetail(order) {
-    setSelectedOrder(order)
+  async function handleCancel(orderId) {
+    try {
+      const updated = await cancelOrder(orderId)
+      setOrders((prev) => prev.map((o) => o.id === orderId ? updated : o))
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -45,6 +72,9 @@ function OrdersPage() {
         </button>
       </div>
 
+      {loading && <p>Cargando pedidos...</p>}
+      {error && <p style={{ color: '#ef4444' }}>{error}</p>}
+
       {showForm && (
         <OrderForm
           onCreate={handleCreate}
@@ -58,13 +88,13 @@ function OrdersPage() {
           onClose={() => setSelectedOrder(null)}
           onStatusChange={handleStatusChange}
         />
-    )}
+      )}
 
       <OrderList
-        orders={state.orders}
+        orders={orders}
         onStatusChange={handleStatusChange}
         onCancel={handleCancel}
-        onViewDetail={handleViewDetail}
+        onViewDetail={setSelectedOrder}
       />
     </section>
   )

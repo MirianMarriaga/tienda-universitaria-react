@@ -1,5 +1,7 @@
 export const inventoryActions = {
-  UPDATE_INVENTORY: 'UPDATE_INVENTORY'
+  UPDATE_INVENTORY: 'UPDATE_INVENTORY',
+  DECREASE_STOCK: 'DECREASE_STOCK',
+  RESTORE_STOCK: 'RESTORE_STOCK'
 }
 
 export function inventoryReducer(state, action) {
