@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { getOrders } from '../services/orderService'
-import { getLowStockProducts, getMonthlyIncome } from '../services/reportService'
+//import { getLowStockProducts, getMonthlyIncome } from '../services/reportService'
 import { customers } from '../data/customers'
 
 function DashboardPage() {
   const [orders, setOrders] = useState([])
-  const [lowStock, setLowStock] = useState([])
-  const [monthlyIncomeData, setMonthlyIncomeData] = useState([])
+  //const [lowStock, setLowStock] = useState([])
+  //const [monthlyIncomeData, setMonthlyIncomeData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -14,6 +14,7 @@ function DashboardPage() {
     loadDashboard()
   }, [])
 
+  /*
   async function loadDashboard() {
     setLoading(true)
     setError('')
@@ -32,6 +33,20 @@ function DashboardPage() {
       setLoading(false)
     }
   }
+    */
+
+  async function loadDashboard() {
+  setLoading(true)
+  setError('')
+  try {
+    const data = await getOrders()
+    setOrders(data)
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setLoading(false)
+  }
+}
 
   const activeProducts = orders.filter((o) => o.status !== 'CANCELLED').length
   const monthOrders = orders.filter((o) => {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import InventoryForm from '../components/inventoryC/InventoryForm'
 import InventoryList from '../components/inventoryC/InventoryList'
 import { updateInventory } from '../services/inventoryService'
-import { getProducts } from '../services/productService'
+//import { getProducts } from '../services/productService'
 
 function InventoriesPage() {
   const [inventory, setInventory] = useState([])
@@ -15,6 +15,7 @@ function InventoriesPage() {
     loadInventory()
   }, [])
 
+  /*
   async function loadInventory() {
     setLoading(true)
     setError('')
@@ -33,6 +34,11 @@ function InventoriesPage() {
     } finally {
       setLoading(false)
     }
+  }
+*/
+
+  async function loadInventory() {
+    setInventory([])
   }
 
   async function handleUpdate(updatedItem) {
