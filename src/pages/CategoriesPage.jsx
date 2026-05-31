@@ -1,3 +1,11 @@
+{/* Agregar <input
+  type="text"
+  placeholder="Buscar por nombre..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="search-input"
+/> antes del form*/}
+
 import { useEffect, useState } from 'react'
 import CategoryForm from '../components/CategoryC/CategoryForm'
 import CategoryList from '../components/CategoryC/CategoryList'
@@ -8,11 +16,17 @@ function CategoriesPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [search, setSearch] = useState('')
+
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   useEffect(() => {
     loadCategories()
   }, [])
-
+ 
+  
   async function loadCategories() {
     setLoading(true)
     setError('')
@@ -27,13 +41,19 @@ function CategoriesPage() {
   }
 
   async function handleCreate(newCategory) {
-    try {
-      const created = await createCategory(newCategory)
-      setCategories((prev) => [...prev, created])
-      setShowForm(false)
-    } catch (err) {
-      setError(err.message)
-    }
+  setError('')
+  try {
+    const created = await createCategory(newCategory)
+    setCategories((prev) => [...prev, created])
+    setShowForm(false)
+  } catch (err) {
+    setError(err.message)
+  }
+}
+
+  async function handleCancel() {
+    setError('')
+    setShowForm(false)
   }
 
   return (
@@ -51,15 +71,23 @@ function CategoriesPage() {
       {loading && <p>Cargando categorías...</p>}
       {error && <p style={{ color: '#ef4444' }}>{error}</p>}
 
+      <input
+        type="text"
+        placeholder="Buscar por nombre..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="search-input"
+      />
+
       {showForm && (
         <CategoryForm
           onCreate={handleCreate}
-          onCancel={() => setShowForm(false)}
+          onCancel={handleCancel}
         />
       )}
 
       <CategoryList
-        categories={categories}
+        categories={filteredCategories}
       />
     </section>
   )

@@ -6,7 +6,6 @@ function CategoryForm({ onCreate, onCancel }) {
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (!name.trim() || !description.trim()) return
     onCreate({ name, description })
     setName('')
     setDescription('')
