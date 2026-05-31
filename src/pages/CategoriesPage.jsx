@@ -7,7 +7,6 @@ function CategoriesPage() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [editingCategory, setEditingCategory] = useState(null)
   const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
@@ -37,16 +36,6 @@ function CategoriesPage() {
     }
   }
 
-  function handleEdit(category) {
-    setEditingCategory(category)
-    setShowForm(true)
-  }
-
-  function handleCancel() {
-    setEditingCategory(null)
-    setShowForm(false)
-  }
-
   return (
     <section>
       <div className="page-header">
@@ -54,7 +43,7 @@ function CategoriesPage() {
           <h2>Categorías</h2>
           <p>Organiza el catálogo por tipo de producto</p>
         </div>
-        <button className="btn-primary" onClick={() => { setEditingCategory(null); setShowForm(true) }}>
+        <button className="btn-primary" onClick={() => setShowForm(true)}>
           + Nueva Categoría
         </button>
       </div>
@@ -64,16 +53,13 @@ function CategoriesPage() {
 
       {showForm && (
         <CategoryForm
-          editingCategory={editingCategory}
           onCreate={handleCreate}
-          onUpdate={() => {}}
-          onCancel={handleCancel}
+          onCancel={() => setShowForm(false)}
         />
       )}
 
       <CategoryList
         categories={categories}
-        onEdit={handleEdit}
       />
     </section>
   )

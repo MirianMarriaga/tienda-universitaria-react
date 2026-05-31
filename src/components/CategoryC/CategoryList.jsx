@@ -12,7 +12,6 @@ function CategoryList({ categories, onEdit }) {
           <th>Categoría</th>
           <th>Descripción</th>
           <th>Productos</th>
-          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -26,11 +25,6 @@ function CategoryList({ categories, onEdit }) {
             </td>
             <td>{category.description}</td>
             <td>{countProducts(category.id)}</td>
-            <td>
-              <button className="btn-outline" onClick={() => onEdit(category)}>
-                Editar
-              </button>
-            </td>
           </tr>
         ))}
       </tbody>
