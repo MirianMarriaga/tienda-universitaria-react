@@ -40,7 +40,7 @@ function DashboardPage() {
   setError('')
   try {
     const data = await getOrders()
-    setOrders(data)
+setOrders(Array.isArray(data) ? data : data.content ?? []) //array de pedidos
   } catch (err) {
     setError(err.message)
   } finally {
