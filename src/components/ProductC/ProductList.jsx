@@ -1,9 +1,8 @@
-// Muestra la lista de productos en una tabla
+
 import { useProducts } from '../../context/ProductContext'
 
 const ProductList = () => {
 
-  // Obtiene los datos del contexto
   const { products, loading, error, selectProduct } = useProducts()
 
   if (loading) return <p className="text-center">Loading products...</p>

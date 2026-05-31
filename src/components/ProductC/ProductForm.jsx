@@ -5,19 +5,19 @@ const ProductForm = ({ categories }) => {
 
   const { addProduct, editProduct, selected, clearSelected } = useProducts()
 
-  // Estado del formulario — coincide exactamente con ProductCreateRequest y ProductUpdateRequest
+
   const [form, setForm] = useState({
     sku: '',
-    category: '',   // Long en backend
+    category: '',  
     name: '',
     description: '',
     price: '',
-    active: true    // solo se usa en update
+    active: true    
   })
 
   const [errors, setErrors] = useState({})
 
-  // Cuando cambia "selected" llena o limpia el formulario
+
   useEffect(() => {
     if (selected) {
       setForm({
@@ -49,7 +49,7 @@ const ProductForm = ({ categories }) => {
     }))
   }
 
-  // Valida el formulario antes de enviar
+ 
   const validate = () => {
     const newErrors = {}
     if (!form.sku.trim())         newErrors.sku = 'SKU is required'
@@ -70,8 +70,7 @@ const ProductForm = ({ categories }) => {
     }
 
     if (selected) {
-      // PUT /api/products/{id}
-      // ProductUpdateRequest: { category, name, description, price, active }
+
       await editProduct(selected.id, {
         category: Number(form.category),
         name: form.name,
@@ -80,8 +79,7 @@ const ProductForm = ({ categories }) => {
         active: form.active
       })
     } else {
-      // POST /api/products
-      // ProductCreateRequest: { sku, category, name, description, price }
+
       await addProduct({
         sku: form.sku,
         category: Number(form.category),
@@ -102,7 +100,7 @@ const ProductForm = ({ categories }) => {
 
       <div className="grid grid-cols-2 gap-4">
 
-        {/* SKU — solo en create, deshabilitado en update */}
+      
         <div>
           <label className="block text-sm font-medium mb-1">SKU</label>
           <input
@@ -117,7 +115,7 @@ const ProductForm = ({ categories }) => {
           {errors.sku && <p className="text-red-500 text-sm mt-1">{errors.sku}</p>}
         </div>
 
-        {/* Category */}
+      
         <div>
           <label className="block text-sm font-medium mb-1">Category</label>
           <select
@@ -136,7 +134,7 @@ const ProductForm = ({ categories }) => {
           {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
         </div>
 
-        {/* Name */}
+     
         <div>
           <label className="block text-sm font-medium mb-1">Name</label>
           <input
@@ -150,7 +148,7 @@ const ProductForm = ({ categories }) => {
           {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
         </div>
 
-        {/* Price */}
+       
         <div>
           <label className="block text-sm font-medium mb-1">Price</label>
           <input
@@ -167,7 +165,7 @@ const ProductForm = ({ categories }) => {
           {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
         </div>
 
-        {/* Description */}
+     
         <div className="col-span-2">
           <label className="block text-sm font-medium mb-1">Description</label>
           <textarea
@@ -179,7 +177,7 @@ const ProductForm = ({ categories }) => {
           />
         </div>
 
-        {/* Active — solo visible en update */}
+   
         {selected && (
           <div className="col-span-2 flex items-center gap-2">
             <input

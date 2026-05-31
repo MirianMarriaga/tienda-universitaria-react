@@ -54,7 +54,7 @@ function ReportsPage() {
         </div>
       </div>
 
-      {/* BEST SELLING */}
+     
       <div className="report-card">
         <h3>Productos más vendidos</h3>
         <table className="table">
@@ -77,7 +77,7 @@ function ReportsPage() {
         </table>
       </div>
 
-      {/* MONTHLY INCOME */}
+    
       <div className="report-card">
         <h3>Ingresos mensuales</h3>
         <table className="table">
@@ -100,7 +100,7 @@ function ReportsPage() {
         </table>
       </div>
 
-      {/* TOP CUSTOMERS */}
+   
       <div className="report-card">
         <h3>Mejores clientes</h3>
         <table className="table">
@@ -123,7 +123,7 @@ function ReportsPage() {
         </table>
       </div>
 
-      {/* LOW STOCK */}
+    
       <div className="report-card">
         <h3>Productos con bajo stock</h3>
         <table className="table">
@@ -146,7 +146,7 @@ function ReportsPage() {
         </table>
       </div>
 
-      {/* TOP CATEGORIES */}
+      
       <div className="report-card">
         <h3>Categorías más vendidas</h3>
         <table className="table">

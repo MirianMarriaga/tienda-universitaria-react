@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react'
 import OrderForm from '../components/orderC/OrderForm'
 import OrderList from '../components/orderC/OrderList'
+import OrderDetailModal from '../components/OrderC/OrderDetailModal'
 import { OrderContext } from '../context/OrderContext'
 import { orderActions } from '../reducers/orderReducer'
 
@@ -52,32 +53,12 @@ function OrdersPage() {
       )}
 
       {selectedOrder && (
-        <div className="category-form">
-          <h3>Detalle del Pedido #{selectedOrder.id}</h3>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio unitario</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedOrder.items.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.productName}</td>
-                  <td>{item.quantity}</td>
-                  <td>${Number(item.unitPrice).toLocaleString('es-CO')}</td>
-                  <td>${Number(item.subtotal).toLocaleString('es-CO')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p><strong>Total: ${Number(selectedOrder.total).toLocaleString('es-CO')}</strong></p>
-          <button className="btn-outline" onClick={() => setSelectedOrder(null)}>Cerrar</button>
-        </div>
-      )}
+        <OrderDetailModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onStatusChange={handleStatusChange}
+        />
+    )}
 
       <OrderList
         orders={state.orders}
