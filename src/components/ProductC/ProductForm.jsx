@@ -63,11 +63,9 @@ function ProductForm({ editingProduct, categories, onCreate, onUpdate, onCancel 
     }
   }
 
-
   if (editingProduct) {
     return (
       <form onSubmit={handleSubmit}>
-
         <div className="detail-grid">
 
           <div className="detail-field">
@@ -133,46 +131,26 @@ function ProductForm({ editingProduct, categories, onCreate, onUpdate, onCancel 
               className="detail-input"
               value={active ? 'ACTIVE' : 'INACTIVE'}
               onChange={e => setActive(e.target.value === 'ACTIVE')}
-              style={{
-                color: active ? '#065f46' : '#991b1b',
-                fontWeight: 500,
-                cursor: 'pointer'
-              }}
+              style={{ color: active ? '#065f46' : '#991b1b', fontWeight: 500 }}
             >
-              <option value="ACTIVE">● Activo</option>
-              <option value="INACTIVE">● Inactivo</option>
+              <option value="ACTIVE">Activo</option>
+              <option value="INACTIVE">Inactivo</option>
             </select>
           </div>
 
         </div>
 
-      
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 10,
-          paddingTop: 16,
-          borderTop: '1px solid #f0f1f3',
-          marginTop: 20
-        }}>
-          <button type="button" className="btn-outline" onClick={onCancel}>
-            Cerrar
-          </button>
-          <button type="submit" className="btn-primary">
-            Guardar cambios
-          </button>
+        <div style={{ display:'flex', justifyContent:'flex-end', gap:10, paddingTop:16, borderTop:'1px solid var(--border-light)', marginTop:20 }}>
+          <button type="button" className="btn-outline" onClick={onCancel}>Cerrar</button>
+          <button type="submit" className="btn-primary">Guardar cambios</button>
         </div>
-
       </form>
     )
   }
 
-
   return (
     <form className="form-container" onSubmit={handleSubmit}>
-
       <h3>Nuevo producto</h3>
-
       <div className="form-grid">
 
         <div>
@@ -232,14 +210,24 @@ function ProductForm({ editingProduct, categories, onCreate, onUpdate, onCancel 
           />
         </div>
 
+        <div>
+          <label>Estado</label>
+          <select
+            className="input"
+            value={active ? 'ACTIVE' : 'INACTIVE'}
+            onChange={e => setActive(e.target.value === 'ACTIVE')}
+          >
+            <option value="ACTIVE">Activo</option>
+            <option value="INACTIVE">Inactivo</option>
+          </select>
+        </div>
+
       </div>
 
       <div className="form-actions">
-        <button type="submit" className="btn-primary">
-          + Nuevo Producto
-        </button>
+        <button type="button" className="btn-outline" onClick={onCancel}>Cancelar</button>
+        <button type="submit" className="btn-primary">+ Nuevo Producto</button>
       </div>
-
     </form>
   )
 }

@@ -1,48 +1,13 @@
-const API_URL =
-  `${import.meta.env.VITE_API_URL}/api/products`
+import { requestJson } from './apiClient'
 
-function getAuthHeaders() {
-  return {
-    Authorization:
-      `Bearer ${localStorage.getItem('token')}`
-  }
-}
-
-async function requestJson(
-  url,
-  options = {}
-) {
-
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-      ...options.headers
-    },
-    ...options
-  })
-
-  if (!response.ok) {
-    throw new Error(
-      `HTTP ${response.status}: ${response.statusText}`
-    )
-  }
-
-  if (response.status === 204) {
-    return null
-  }
-
-  return response.json()
-}
+const API_URL = `${import.meta.env.VITE_API_URL}/api/products`
 
 export async function getAllProducts() {
   return requestJson(API_URL)
 }
 
 export async function getProductById(id) {
-  return requestJson(
-    `${API_URL}/${id}`
-  )
+  return requestJson(`${API_URL}/${id}`)
 }
 
 export async function createProduct(product) {
@@ -53,24 +18,22 @@ export async function createProduct(product) {
 }
 
 export async function updateProduct(id, product) {
-  return requestJson(
-    `${API_URL}/${id}`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(product)
-    }
-  )
+  const { categoryId, sku, createdAt, updatedAt, id: _id, ...rest } = product
+  return requestJson(`${API_URL}/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      category: categoryId,   
+      name:        rest.name,
+      description: rest.description,
+      price:       rest.price,
+      active:      rest.active
+    })
+  })
 }
 
-export async function updateInventory(
-  id,
-  inventory
-) {
-  return requestJson(
-    `${API_URL}/${id}/inventory`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(inventory)
-    }
-  )
+export async function updateInventory(id, inventory) {
+  return requestJson(`${API_URL}/${id}/inventory`, {
+    method: 'PUT',
+    body: JSON.stringify(inventory)
+  })
 }
