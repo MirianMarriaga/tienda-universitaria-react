@@ -49,7 +49,7 @@ function ProductForm({ editingProduct, categories, onCreate, onUpdate, onCancel 
 
     const productData = {
       sku,
-      categoryId: Number(categoryId),
+      category: Number(categoryId),
       name,
       description,
       price: Number(price),

@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import CategoryForm from '../components/CategoryC/CategoryForm'
 import CategoryList from '../components/CategoryC/CategoryList'
 import { createCategory, getCategories } from '../services/categoryService'
 import { getAllProducts } from '../services/productService'
+import { ProductContext } from '../context/ProductContext'
 
 function CategoriesPage() {
   const [categories, setCategories] = useState([])
@@ -11,6 +12,8 @@ function CategoriesPage() {
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [search, setSearch] = useState('')
+
+  const { dispatch } = useContext(ProductContext)
 
   const filteredCategories = categories.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -47,7 +50,9 @@ function CategoriesPage() {
     setError('')
     try {
       const created = await createCategory(newCategory)
-      setCategories((prev) => [...prev, created])
+      const updatedCategories = [...categories, created]
+      setCategories(updatedCategories)
+      dispatch({ type: 'SET_CATEGORIES', payload: updatedCategories })
       setShowForm(false)
     } catch (err) {
       setError(err.message)
@@ -74,13 +79,19 @@ function CategoriesPage() {
       {loading && <p>Cargando categorías...</p>}
       {error && <p style={{ color: '#ef4444' }}>{error}</p>}
 
-      <input
-        type="text"
-        placeholder="Buscar por nombre..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="search-input"
-      />
+      <div className="search-bar">
+        <span className="search-icon">🔍</span>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar por nombre..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        {search && (
+          <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+        )}
+      </div>
 
       {showForm && (
         <CategoryForm onCreate={handleCreate} onCancel={handleCancel} />

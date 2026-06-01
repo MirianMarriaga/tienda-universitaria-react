@@ -24,11 +24,13 @@ function Modal({ open, title, onClose, children }) {
         <div className="modal-body">
           {children}
         </div>
-
+        <div className="modal" onClick={e => e.stopPropagation()} style={{ overflow: 'hidden', maxWidth: 720 }}>
+        </div>
       </div>
     </div>,
     document.body
   )
+  
 }
 
 export default Modal

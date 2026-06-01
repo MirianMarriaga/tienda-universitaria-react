@@ -13,6 +13,18 @@ function ProductsPage() {
   const [showForm, setShowForm]             = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [showEditModal, setShowEditModal]   = useState(false)
+  const [search, setSearch]                = useState('')
+
+  const filteredProducts = state.products.filter((p) => {
+    const term = search.toLowerCase()
+    const catName = state.categories
+      ?.find(c => c.id === p.categoryId)?.name ?? ''
+    return (
+      p.name.toLowerCase().includes(term) ||
+      p.sku.toLowerCase().includes(term)  ||
+      catName.toLowerCase().includes(term)
+    )
+  })
 
   async function handleCreate(newProduct) {
     dispatch({ type: productActions.SET_LOADING, payload: true })
@@ -20,7 +32,7 @@ function ProductsPage() {
       const created = await createProduct(newProduct)
       dispatch({ type: productActions.ADD_PRODUCT, payload: created })
       setShowForm(false)
-    } catch (e) {
+    } catch {
       dispatch({ type: productActions.SET_ERROR, payload: 'Error creando producto' })
     } finally {
       dispatch({ type: productActions.SET_LOADING, payload: false })
@@ -34,7 +46,7 @@ function ProductsPage() {
       dispatch({ type: productActions.UPDATE_PRODUCT, payload: updated })
       setShowEditModal(false)
       setEditingProduct(null)
-    } catch (e) {
+    } catch {
       dispatch({ type: productActions.SET_ERROR, payload: 'Error actualizando producto' })
     } finally {
       dispatch({ type: productActions.SET_LOADING, payload: false })
@@ -73,8 +85,22 @@ function ProductsPage() {
         />
       )}
 
+      <div className="search-bar">
+        <span className="search-icon">🔍</span>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar por nombre, SKU o categoría..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        {search && (
+          <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+        )}
+      </div>
+
       <ProductList
-        products={state.products}
+        products={filteredProducts}
         categories={state.categories || []}
         loading={state.loading}
         error={state.error}
