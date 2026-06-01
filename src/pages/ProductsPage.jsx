@@ -1,9 +1,10 @@
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'  // ← agrega useEffect
 
 import ProductForm from '../components/ProductC/ProductForm'
 import ProductList from '../components/ProductC/ProductList'
 
 import { ProductContext } from '../context/ProductContext'
+import { getCategories } from '../services/categoryService'  // ← importa esto
 
 import {
   createProduct,
@@ -16,6 +17,13 @@ function ProductsPage() {
 
   const [editingProduct, setEditingProduct] = useState(null)
   const [showForm, setShowForm] = useState(false)
+  const [categories, setCategories] = useState([])  // ← estado local de categorías
+
+  useEffect(() => {
+    getCategories()
+      .then(data => setCategories(Array.isArray(data) ? data : data.content ?? []))
+      .catch(err => console.error('Error cargando categorías:', err))
+  }, [])
 
   async function handleCreate(productData) {
     await createProduct(productData)
@@ -24,10 +32,16 @@ function ProductsPage() {
   }
 
   async function handleUpdate(productData) {
-    await updateProduct(productData)
+    const { id, ...rest } = productData  // ← fix del mismo bug que tenías en customers
+    await updateProduct(id, rest)
     await loadProducts()
     setEditingProduct(null)
     setShowForm(false)
+  }
+
+  function handleEdit(product) {  // ← faltaba esta función
+    setEditingProduct(product)
+    setShowForm(true)
   }
 
   return (
@@ -50,7 +64,7 @@ function ProductsPage() {
       {showForm && (
         <ProductForm
           editingProduct={editingProduct}
-          categories={state.categories}
+          categories={categories}  // ← ahora viene del estado local
           onCreate={handleCreate}
           onUpdate={handleUpdate}
           onCancel={() => setShowForm(false)}
@@ -59,8 +73,8 @@ function ProductsPage() {
 
       <ProductList
         products={state.products}
-        categories={state.categories}
-        onEdit={setEditingProduct}
+        categories={categories}  // ← también aquí
+        onEdit={handleEdit}
       />
 
     </section>
