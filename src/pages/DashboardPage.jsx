@@ -1,61 +1,57 @@
 import { useEffect, useState } from 'react'
 import { getOrders } from '../services/orderService'
-//import { getLowStockProducts, getMonthlyIncome } from '../services/reportService'
-import { customers } from '../data/customers'
+import { getLowStockProducts, getMonthlyIncome } from '../services/ReportService'
+import { getAllCustomers } from '../services/customerService'
 
 function DashboardPage() {
-  const [orders, setOrders] = useState([])
-  const [lowStock, setLowStock] = useState([])
+  const [orders, setOrders]                   = useState([])
+  const [customers, setCustomers]             = useState([])
+  const [lowStock, setLowStock]               = useState([])
   const [monthlyIncomeData, setMonthlyIncomeData] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [loading, setLoading]                 = useState(false)
+  const [error, setError]                     = useState('')
 
-  useEffect(() => {
-    loadDashboard()
-  }, [])
+  useEffect(() => { loadDashboard() }, [])
 
-  /*
   async function loadDashboard() {
     setLoading(true)
     setError('')
     try {
-      const [ordersData, lowStockData, incomeData] = await Promise.all([
-        getOrders(),
-        getLowStockProducts(),
-        getMonthlyIncome()
+      const [ordersData, customersData, lowStockData, incomeData] = await Promise.all([
+        getOrders().catch(() => []),
+        getAllCustomers().catch(() => []),
+        getLowStockProducts().catch(() => []),
+        getMonthlyIncome().catch(() => []),
       ])
-      setOrders(ordersData)
-      setLowStock(lowStockData)
-      setMonthlyIncomeData(incomeData)
+      setOrders(Array.isArray(ordersData) ? ordersData : ordersData.content ?? [])
+      setCustomers(Array.isArray(customersData) ? customersData : customersData.content ?? [])
+      setLowStock(Array.isArray(lowStockData) ? lowStockData : [])
+      setMonthlyIncomeData(Array.isArray(incomeData) ? incomeData : [])
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
   }
-    */
 
-  async function loadDashboard() {
-  setLoading(true)
-  setError('')
-  try {
-    const data = await getOrders()
-setOrders(Array.isArray(data) ? data : data.content ?? []) //array de pedidos
-  } catch (err) {
-    setError(err.message)
-  } finally {
-    setLoading(false)
-  }
-}
-
-  const activeProducts = orders.filter((o) => o.status !== 'CANCELLED').length
   const monthOrders = orders.filter((o) => {
     const date = new Date(o.createdAt)
-    return date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear()
+    return (
+      date.getMonth() === new Date().getMonth() &&
+      date.getFullYear() === new Date().getFullYear()
+    )
   }).length
+
   const monthIncome = orders
-    .filter((o) => o.status !== 'CANCELLED' && new Date(o.createdAt).getMonth() === new Date().getMonth())
-    .reduce((sum, o) => sum + Number(o.total), 0)
+    .filter((o) => {
+      if (o.status === 'CANCELLED') return false
+      const date = new Date(o.createdAt)
+      return (
+        date.getMonth() === new Date().getMonth() &&
+        date.getFullYear() === new Date().getFullYear()
+      )
+    })
+    .reduce((sum, o) => sum + Number(o.total ?? o.totalAmount ?? 0), 0)
 
   function formatPrice(price) {
     return `$${Number(price).toLocaleString('es-CO')}`
@@ -68,29 +64,32 @@ setOrders(Array.isArray(data) ? data : data.content ?? []) //array de pedidos
   }
 
   function getStatusLabel(status) {
-    const labels = {
+    return {
       CREATED: 'Creado', PAID: 'Pagado',
-      SHIPPED: 'Despachado', DELIVERED: 'Entregado', CANCELLED: 'Cancelado'
-    }
-    return labels[status] || status
+      SHIPPED: 'Despachado', DELIVERED: 'Entregado',
+      CANCELLED: 'Cancelado', PROCESSING: 'En proceso',
+      PENDING: 'Pendiente'
+    }[status] ?? status
   }
 
   function getStatusClass(status) {
-    const classes = {
+    return {
       CREATED: 'badge-blue', PAID: 'badge-green',
-      SHIPPED: 'badge-purple', DELIVERED: 'badge-green', CANCELLED: 'badge-red'
-    }
-    return classes[status] || 'badge-gray'
+      SHIPPED: 'badge-purple', DELIVERED: 'badge-green',
+      CANCELLED: 'badge-red', PROCESSING: 'badge-gray',
+      PENDING: 'badge-gray'
+    }[status] ?? 'badge-gray'
   }
 
+
   function getCustomerName(customerId) {
-    const customer = customers.find((c) => c.id === customerId)
-    return customer ? customer.fullName : 'Desconocido'
+    const customer = customers.find((c) => c.id === customerId || c.id === Number(customerId))
+    return customer ? customer.fullName : `Cliente #${customerId}`
   }
 
   const recentOrders = [...orders].sort((a, b) => b.id - a.id).slice(0, 5)
-  const maxIncome = Math.max(...monthlyIncomeData.map((m) => m.totalIncome), 1)
-  const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+  const maxIncome    = Math.max(...monthlyIncomeData.map((m) => m.totalIncome), 1)
+  const monthNames   = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
   return (
     <section>
@@ -101,8 +100,8 @@ setOrders(Array.isArray(data) ? data : data.content ?? []) //array de pedidos
         </div>
       </div>
 
-      {loading && <p>Cargando dashboard...</p>}
-      {error && <p style={{ color: '#ef4444' }}>{error}</p>}
+      {loading && <p className="center-text muted-text">Cargando dashboard...</p>}
+      {error   && <p style={{ color:'#ef4444' }}>{error}</p>}
 
       <div className="dashboard-cards">
         <div className="stat-card">
@@ -116,7 +115,7 @@ setOrders(Array.isArray(data) ? data : data.content ?? []) //array de pedidos
         <div className="stat-card">
           <p className="stat-label">Productos con bajo stock</p>
           <p className="stat-value">{lowStock.length}</p>
-          <p className="stat-sub red">Requiere atención</p>
+          {lowStock.length > 0 && <p className="stat-sub red">Requiere atención</p>}
         </div>
       </div>
 
@@ -136,15 +135,22 @@ setOrders(Array.isArray(data) ? data : data.content ?? []) //array de pedidos
               </tr>
             </thead>
             <tbody>
-              {recentOrders.map((order) => (
-                <tr key={order.id}>
-                  <td><strong>#{order.id}</strong></td>
-                  <td>{getCustomerName(order.customerId)}</td>
-                  <td>{formatDate(order.createdAt)}</td>
-                  <td>{formatPrice(order.total)}</td>
-                  <td><span className={`badge ${getStatusClass(order.status)}`}>{getStatusLabel(order.status)}</span></td>
-                </tr>
-              ))}
+              {recentOrders.length === 0
+                ? <tr><td colSpan={5} style={{ textAlign:'center', color:'var(--text-sub)' }}>Sin pedidos recientes</td></tr>
+                : recentOrders.map((order) => (
+                  <tr key={order.id}>
+                    <td><strong>#{order.id}</strong></td>
+                    <td>{getCustomerName(order.customerId)}</td>
+                    <td>{formatDate(order.createdAt)}</td>
+                    <td>{formatPrice(order.total ?? order.totalAmount ?? 0)}</td>
+                    <td>
+                      <span className={`badge ${getStatusClass(order.status)}`}>
+                        {getStatusLabel(order.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              }
             </tbody>
           </table>
         </div>
@@ -152,36 +158,44 @@ setOrders(Array.isArray(data) ? data : data.content ?? []) //array de pedidos
         <div className="dashboard-panel">
           <h3>Alertas de inventario</h3>
           <p>{lowStock.length} producto(s) por debajo del mínimo</p>
-          <div style={{ marginTop: 16 }}>
-            {lowStock.map((item) => (
-              <div key={item.productId} className="alert-item">
-                <div>
-                  <strong>{item.productName}</strong>
-                  <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
-                    Stock {item.availableStock} / min. {item.minimumStock}
-                  </p>
+          <div style={{ marginTop:16 }}>
+            {lowStock.length === 0
+              ? <p className="muted-text" style={{ fontSize:'0.82rem' }}>Sin alertas de inventario</p>
+              : lowStock.map((item) => (
+                <div key={item.productId} className="alert-item">
+                  <div>
+                    <strong>{item.productName}</strong>
+                    <p style={{ fontSize:'0.75rem', color:'#6b7280', margin:0 }}>
+                      Stock {item.availableStock} / min. {item.minimumStock}
+                    </p>
+                  </div>
+                  <span className="badge badge-red">Crítico</span>
                 </div>
-                <span className="badge badge-red">Crítico</span>
-              </div>
-            ))}
+              ))
+            }
           </div>
         </div>
       </div>
 
-      <div className="dashboard-panel" style={{ marginTop: 24 }}>
+      <div className="dashboard-panel" style={{ marginTop:24 }}>
         <h3>Ingresos mensuales</h3>
-        <div className="bar-chart">
-          {monthlyIncomeData.map((m) => {
-            const heightPercent = (m.totalIncome / maxIncome) * 100
-            return (
-              <div key={`${m.year}-${m.month}`} className="bar-col">
-                <span className="bar-label">${(m.totalIncome / 1000000).toFixed(1)}M</span>
-                <div className="bar" style={{ height: `${heightPercent}%` }} />
-                <span className="bar-month">{monthNames[m.month - 1]}</span>
-              </div>
-            )
-          })}
-        </div>
+        {monthlyIncomeData.length === 0
+          ? <p className="muted-text" style={{ fontSize:'0.82rem', marginTop:12 }}>Sin datos de ingresos</p>
+          : (
+            <div className="bar-chart">
+              {monthlyIncomeData.map((m) => {
+                const heightPercent = (m.totalIncome / maxIncome) * 100
+                return (
+                  <div key={`${m.year}-${m.month}`} className="bar-col">
+                    <span className="bar-label">${(m.totalIncome / 1000000).toFixed(1)}M</span>
+                    <div className="bar" style={{ height:`${heightPercent}%` }}/>
+                    <span className="bar-month">{monthNames[m.month - 1]}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        }
       </div>
     </section>
   )

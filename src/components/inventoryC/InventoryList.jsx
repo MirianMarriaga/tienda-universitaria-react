@@ -1,85 +1,87 @@
-function InventoryList({ inventory, products = [], onUpdate }) {
+function InventoryList({ inventory, products, onUpdate }) {
 
   function getProductName(productId) {
-    const product = products.find((p) => p.id === productId)
-    return product ? product.name : 'Desconocido'
+    const product = products.find(p => p.id === productId)
+    return product ? product.name : `Producto #${productId}`
   }
 
   function getProductSku(productId) {
-    const product = products.find((p) => p.id === productId)
-    return product ? product.sku : '-'
+    const product = products.find(p => p.id === productId)
+    return product?.sku ?? '—'
   }
 
-  function getStatus(item) {
-    if (item.availableStock === 0) return 'Sin stock'
-    if (item.availableStock < item.minimumStock) return 'Crítico'
-    return 'Ok'
+  function getStockStatus(item) {
+    if (item.availableStock === 0)
+      return <span className="badge badge-gray">Sin stock</span>
+    if (item.availableStock <= item.minimumStock)
+      return <span className="badge badge-red">Crítico</span>
+    if (item.availableStock <= item.minimumStock * 1.5)
+      return <span className="badge badge-red" style={{ background:'#fff7ed', color:'#c2410c' }}>Bajo</span>
+    return <span className="badge badge-green">OK</span>
   }
 
-  function getStockLevel(item) {
-    const ratio = item.availableStock / item.minimumStock
-    const percent = Math.min(ratio * 100, 100)
-    const color = item.availableStock === 0 ? '#6b7280'
-      : item.availableStock < item.minimumStock ? '#ef4444'
-      : '#22c55e'
+  function getStockBar(item) {
+    const max = Math.max(item.minimumStock * 2, item.availableStock, 1)
+    const pct = Math.min((item.availableStock / max) * 100, 100)
+    const color = item.availableStock === 0 ? '#d1d5db'
+      : item.availableStock <= item.minimumStock ? '#ef4444' : '#3b5bdb'
     return (
-      <div style={{ background: '#e5e7eb', borderRadius: 4, height: 8, width: 100 }}>
-        <div style={{ width: `${percent}%`, background: color, height: 8, borderRadius: 4 }} />
+      <div style={{ height: 8, background: '#f0f2f8', borderRadius: 999, overflow: 'hidden', minWidth: 80 }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 999, transition: 'width 0.3s' }}/>
       </div>
     )
   }
 
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>SKU</th>
-          <th>Stock disponible</th>
-          <th>Stock mínimo</th>
-          <th>Estado</th>
-          <th>Nivel</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {inventory.map((item) => {
-          const status = getStatus(item)
-          return (
+    <div className="table-wrapper">
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>SKU</th>
+            <th>Stock disponible</th>
+            <th>Stock mínimo</th>
+            <th>Estado</th>
+            <th>Nivel</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {inventory.length === 0 && (
+            <tr>
+              <td colSpan={7} className="center-text muted-text">Sin registros de inventario</td>
+            </tr>
+          )}
+          {inventory.map(item => (
             <tr key={item.productId}>
-              <td>{getProductName(item.productId)}</td>
-              <td style={{ color: '#6b7280' }}>{getProductSku(item.productId)}</td>
-              <td style={{ fontWeight: 600 }}>{item.availableStock}</td>
-              <td style={{ color: status === 'Crítico' ? '#ef4444' : '#374151' }}>
-                {item.minimumStock}
-              </td>
+              <td style={{ fontWeight: 500, color: 'var(--text-h)' }}>{getProductName(item.productId)}</td>
+              <td><span className="mono">{getProductSku(item.productId)}</span></td>
               <td>
-                <span className={`badge ${
-                  status === 'Ok' ? 'badge-green'
-                  : status === 'Crítico' ? 'badge-red'
-                  : 'badge-gray'
-                }`}>
-                  {status}
+                <span className="mono" style={{ fontWeight: 600, color: item.availableStock <= item.minimumStock ? '#dc2626' : 'var(--text-h)' }}>
+                  {item.availableStock}
                 </span>
               </td>
-              <td>{getStockLevel(item)}</td>
               <td>
-                <button className="btn-outline" onClick={() => onUpdate(item)}>
+                <span className="mono" style={{ color: item.availableStock <= item.minimumStock ? '#dc2626' : 'var(--text-sub)' }}>
+                  {item.minimumStock}
+                </span>
+              </td>
+              <td>{getStockStatus(item)}</td>
+              <td style={{ minWidth: 100 }}>{getStockBar(item)}</td>
+              <td>
+                <button
+                  className="btn-primary"
+                  style={{ fontSize: '0.78rem', padding: '6px 12px' }}
+                  onClick={() => onUpdate(item)}
+                >
                   ✏️ Actualizar
                 </button>
               </td>
             </tr>
-          )
-        })}
-        {inventory.length === 0 && (
-          <tr>
-            <td colSpan={7} style={{ textAlign: 'center', color: '#6b7280' }}>
-              No hay productos en inventario
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

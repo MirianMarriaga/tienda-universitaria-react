@@ -5,47 +5,31 @@ import { getInventoryByProduct, updateInventory } from '../services/inventorySer
 import { getAllProducts } from '../services/productService'
 
 function InventoriesPage() {
-  const [inventory, setInventory] = useState([])
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [inventory, setInventory]   = useState([])
+  const [products, setProducts]     = useState([])
+  const [loading, setLoading]       = useState(false)
+  const [error, setError]           = useState('')
   const [editingItem, setEditingItem] = useState(null)
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm]     = useState(false)
 
-  useEffect(() => {
-    loadInventory()
-  }, [])
+  useEffect(() => { loadInventory() }, [])
 
   async function loadInventory() {
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     try {
       const data = await getAllProducts()
       const productList = Array.isArray(data) ? data : data.content ?? []
       setProducts(productList)
-
-      // por cada producto trae su inventario
       const inventoryData = await Promise.all(
         productList.map(p =>
           getInventoryByProduct(p.id)
-            .then(inv => ({
-              productId: p.id,
-              availableStock: inv.availableStock,
-              minimumStock: inv.minimumStock,
-            }))
-            .catch(() => ({
-              productId: p.id,
-              availableStock: 0,
-              minimumStock: 0,
-            }))
+            .then(inv => ({ productId: p.id, availableStock: inv.availableStock, minimumStock: inv.minimumStock }))
+            .catch(() => ({ productId: p.id, availableStock: 0, minimumStock: 0 }))
         )
       )
       setInventory(inventoryData)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    } catch (err) { setError(err.message) }
+    finally { setLoading(false) }
   }
 
   async function handleUpdate(updatedItem) {
@@ -54,25 +38,14 @@ function InventoriesPage() {
         availableStock: updatedItem.availableStock,
         minimumStock: updatedItem.minimumStock
       })
-      setInventory(prev =>
-        prev.map(item => item.productId === updatedItem.productId ? updatedItem : item)
-      )
+      setInventory(prev => prev.map(item => item.productId === updatedItem.productId ? updatedItem : item))
       setEditingItem(null)
       setShowForm(false)
-    } catch (err) {
-      setError(err.message)
-    }
+    } catch (err) { setError(err.message) }
   }
 
-  function handleEdit(item) {
-    setEditingItem(item)
-    setShowForm(true)
-  }
-
-  function handleCancel() {
-    setEditingItem(null)
-    setShowForm(false)
-  }
+  function handleEdit(item) { setEditingItem(item); setShowForm(true) }
+  function handleCancel()   { setEditingItem(null); setShowForm(false) }
 
   return (
     <section>
@@ -83,8 +56,8 @@ function InventoriesPage() {
         </div>
       </div>
 
-      {loading && <p>Cargando inventario...</p>}
-      {error && <p style={{ color: '#ef4444' }}>{error}</p>}
+      {loading && <p className="center-text muted-text">Cargando inventario...</p>}
+      {error   && <p className="error-text">{error}</p>}
 
       {showForm && (
         <InventoryForm
@@ -94,11 +67,7 @@ function InventoriesPage() {
         />
       )}
 
-      <InventoryList
-        inventory={inventory}
-        products={products}
-        onUpdate={handleEdit}
-      />
+      <InventoryList inventory={inventory} products={products} onUpdate={handleEdit} />
     </section>
   )
 }

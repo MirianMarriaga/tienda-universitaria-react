@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import OrderDetailModal from '../components/OrderC/OrderDetailModal'
 import OrderForm from '../components/OrderC/OrderForm'
 import OrderList from '../components/OrderC/OrderList'
@@ -6,11 +6,11 @@ import { getAllCustomers } from '../services/customerService'
 import { cancelOrder, createOrder, deliverOrder, getOrders, payOrder, shipOrder } from '../services/orderService'
 
 function OrdersPage() {
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [customers, setCustomers] = useState([])
+  const [orders, setOrders]         = useState([])
+  const [customers, setCustomers]   = useState([])
+  const [loading, setLoading]       = useState(false)
+  const [error, setError]           = useState('')
+  const [showForm, setShowForm]     = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
 
   useEffect(() => {
@@ -21,47 +21,37 @@ function OrdersPage() {
   }, [])
 
   async function loadOrders() {
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     try {
       const data = await getOrders()
-      setOrders(Array.isArray(data) ? data : data.content ?? []) // array de pedidos
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+      setOrders(Array.isArray(data) ? data : data.content ?? [])
+    } catch (err) { setError(err.message) }
+    finally { setLoading(false) }
   }
 
   async function handleCreate(orderData) {
     try {
       const created = await createOrder(orderData)
-      setOrders((prev) => [created, ...prev])
+      setOrders(prev => [created, ...prev])
       setShowForm(false)
-    } catch (err) {
-      setError(err.message)
-    }
+    } catch (err) { setError(err.message) }
   }
 
   async function handleStatusChange(orderId, newStatus) {
     try {
       let updated
-      if (newStatus === 'PAID') updated = await payOrder(orderId)
-      else if (newStatus === 'SHIPPED') updated = await shipOrder(orderId)
+      if (newStatus === 'PAID')      updated = await payOrder(orderId)
+      else if (newStatus === 'SHIPPED')   updated = await shipOrder(orderId)
       else if (newStatus === 'DELIVERED') updated = await deliverOrder(orderId)
-      setOrders((prev) => prev.map((o) => o.id === orderId ? updated : o))
-    } catch (err) {
-      setError(err.message)
-    }
+      setOrders(prev => prev.map(o => o.id === orderId ? updated : o))
+    } catch (err) { setError(err.message) }
   }
 
   async function handleCancel(orderId) {
     try {
       const updated = await cancelOrder(orderId)
-      setOrders((prev) => prev.map((o) => o.id === orderId ? updated : o))
-    } catch (err) {
-      setError(err.message)
-    }
+      setOrders(prev => prev.map(o => o.id === orderId ? updated : o))
+    } catch (err) { setError(err.message) }
   }
 
   return (
@@ -71,13 +61,13 @@ function OrdersPage() {
           <h2>Pedidos</h2>
           <p>Gestión completa de órdenes de compra y su ciclo de vida</p>
         </div>
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
-          + Nuevo Pedido
+        <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Cerrar formulario' : '+ Nuevo Pedido'}
         </button>
       </div>
 
-      {loading && <p>Cargando pedidos...</p>}
-      {error && <p style={{ color: '#ef4444' }}>{error}</p>}
+      {loading && <p className="center-text muted-text">Cargando pedidos...</p>}
+      {error   && <p className="error-text">{error}</p>}
 
       {showForm && (
         <OrderForm
@@ -100,7 +90,7 @@ function OrdersPage() {
         onStatusChange={handleStatusChange}
         onCancel={handleCancel}
         onViewDetail={setSelectedOrder}
-/>
+      />
     </section>
   )
 }
