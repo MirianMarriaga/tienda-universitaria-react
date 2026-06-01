@@ -70,14 +70,13 @@ function OrderDetailModal({ order, onClose, onStatusChange }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
 
-        {/* Header */}
         <div className="modal-header">
           <h3>Pedido #{order.id}</h3>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         <div className="modal-body">
-          {/* Dirección */}
+
           {address && (
             <div className="modal-card">
               <p className="modal-card-label">DIRECCIÓN DE ENVÍO</p>
@@ -86,7 +85,6 @@ function OrderDetailModal({ order, onClose, onStatusChange }) {
             </div>
           )}
 
-          {/* Items */}
           <h4 style={{ margin: '16px 0 8px' }}>Ítems</h4>
           <table className="table">
             <thead>
@@ -116,7 +114,6 @@ function OrderDetailModal({ order, onClose, onStatusChange }) {
             </tbody>
           </table>
 
-          {/* Historial */}
           <h4 style={{ margin: '16px 0 8px' }}>Historial de estados</h4>
           <div className="modal-card">
             {history.map((entry, index) => (
@@ -132,7 +129,6 @@ function OrderDetailModal({ order, onClose, onStatusChange }) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="modal-footer">
           <span className={`badge badge-${order.status === 'CANCELLED' ? 'red' : order.status === 'DELIVERED' ? 'green' : order.status === 'SHIPPED' ? 'purple' : order.status === 'PAID' ? 'green' : 'blue'}`}>
             {statusLabels[order.status]}

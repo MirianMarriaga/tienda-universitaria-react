@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import CategoryForm from '../components/CategoryC/CategoryForm'
 import CategoryList from '../components/CategoryC/CategoryList'
 import { createCategory, getCategories } from '../services/categoryService'
-import { getAllProducts } from '../services/productService'  // ← importa esto
+import { getAllProducts } from '../services/productService'
 
 function CategoriesPage() {
   const [categories, setCategories] = useState([])
-  const [products, setProducts] = useState([])             // ← agrega esto
+  const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -18,7 +18,7 @@ function CategoriesPage() {
 
   useEffect(() => {
     loadCategories()
-    loadProducts()                                          // ← agrega esto
+    loadProducts()
   }, [])
 
   async function loadCategories() {
@@ -34,7 +34,7 @@ function CategoriesPage() {
     }
   }
 
-  async function loadProducts() {                          // ← agrega esto
+  async function loadProducts() {
     try {
       const data = await getAllProducts()
       setProducts(Array.isArray(data) ? data : data.content ?? [])
@@ -88,7 +88,7 @@ function CategoriesPage() {
 
       <CategoryList
         categories={filteredCategories}
-        products={products}           // ← pásalos aquí
+        products={products}
       />
     </section>
   )

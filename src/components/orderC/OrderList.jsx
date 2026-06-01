@@ -1,10 +1,8 @@
-import { customers } from '../../data/customers'
-
-function OrderList({ orders, onStatusChange, onCancel, onViewDetail }) {
+function OrderList({ orders, customers = [], onStatusChange, onCancel, onViewDetail }) {
 
   function getCustomerName(customerId) {
-    const customer = customers.find((c) => c.id === customerId)
-    return customer ? customer.fullName : 'Desconocido'
+    const customer = customers.find(c => c.id === customerId)
+    return customer ? customer.fullName : `Cliente #${customerId}`
   }
 
   function formatDate(dateString) {
@@ -79,12 +77,12 @@ function OrderList({ orders, onStatusChange, onCancel, onViewDetail }) {
         </tr>
       </thead>
       <tbody>
-        {orders.map((order) => (
+        {orders.map(order => (
           <tr key={order.id}>
             <td><strong>#{order.id}</strong></td>
             <td>{getCustomerName(order.customerId)}</td>
             <td>{formatDate(order.createdAt)}</td>
-            <td>{order.items.reduce((sum, item) => sum + item.quantity, 0)} ud.</td>
+            <td>{order.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0} ud.</td>
             <td>{formatPrice(order.total)}</td>
             <td>{getStatusBadge(order.status)}</td>
             <td>
@@ -94,6 +92,13 @@ function OrderList({ orders, onStatusChange, onCancel, onViewDetail }) {
             </td>
           </tr>
         ))}
+        {orders.length === 0 && (
+          <tr>
+            <td colSpan={7} style={{ textAlign: 'center', color: '#6b7280' }}>
+              No hay pedidos registrados
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
   )

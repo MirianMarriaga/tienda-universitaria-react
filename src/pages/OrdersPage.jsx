@@ -2,18 +2,22 @@ import { useContext, useEffect, useState } from 'react'
 import OrderDetailModal from '../components/OrderC/OrderDetailModal'
 import OrderForm from '../components/OrderC/OrderForm'
 import OrderList from '../components/OrderC/OrderList'
-import { InventoryContext } from '../context/InventoryContext'
-import { cancelOrder, createOrder, deliverOrder, filterOrders, getOrders, payOrder, shipOrder } from '../services/orderService'
+import { getAllCustomers } from '../services/customerService'
+import { cancelOrder, createOrder, deliverOrder, getOrders, payOrder, shipOrder } from '../services/orderService'
 
 function OrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [customers, setCustomers] = useState([])
   const [selectedOrder, setSelectedOrder] = useState(null)
 
   useEffect(() => {
     loadOrders()
+    getAllCustomers()
+      .then(data => setCustomers(Array.isArray(data) ? data : data.content ?? []))
+      .catch(() => {})
   }, [])
 
   async function loadOrders() {
@@ -92,10 +96,11 @@ function OrdersPage() {
 
       <OrderList
         orders={orders}
+        customers={customers}
         onStatusChange={handleStatusChange}
         onCancel={handleCancel}
         onViewDetail={setSelectedOrder}
-      />
+/>
     </section>
   )
 }

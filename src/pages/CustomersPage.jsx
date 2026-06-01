@@ -61,7 +61,11 @@ function CustomersPage() {
         <CustomerForm
           editingCustomer={null}
           onCreate={handleCreate}
-          onCancel={() => setShowForm(false)}
+          onUpdate={handleUpdate}
+          onCancel={() => {
+            setShowForm(false)
+            setEditingCustomer(null)
+          }}
         />
       )}
 
