@@ -2,6 +2,7 @@ import { useContext, useState } from 'react'
 
 import ProductForm from '../components/ProductC/ProductForm'
 import ProductList from '../components/ProductC/ProductList'
+import Modal from '../Modal'
 
 import { ProductContext } from '../context/ProductContext'
 import { productActions } from '../reducers/productReducer'
@@ -11,83 +12,49 @@ function ProductsPage() {
   const { state, dispatch } = useContext(ProductContext)
 
   const [editingProduct, setEditingProduct] = useState(null)
-  const [showForm, setShowForm] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(false)
 
   function handleCreate(newProduct) {
-
-    dispatch({
-      type: productActions.ADD_PRODUCT,
-      payload: newProduct
-    })
-
-    setShowForm(false)
+    dispatch({ type: productActions.ADD_PRODUCT, payload: newProduct })
+    setShowCreateForm(false)
   }
 
   function handleUpdate(updatedProduct) {
-
-    dispatch({
-      type: productActions.UPDATE_PRODUCT,
-      payload: updatedProduct
-    })
-
+    dispatch({ type: productActions.UPDATE_PRODUCT, payload: updatedProduct })
     setEditingProduct(null)
-    setShowForm(false)
+    setShowEditModal(false)
   }
 
   function handleEdit(product) {
-
     setEditingProduct(product)
-    setShowForm(true)
+    setShowEditModal(true)
   }
 
-  function handleCancel() {
-
+  function handleCloseEdit() {
     setEditingProduct(null)
-    setShowForm(false)
-  }
-
-  function handleToggleForm() {
-
-    if (showForm) {
-      setEditingProduct(null)
-      setShowForm(false)
-      return
-    }
-
-    setEditingProduct(null)
-    setShowForm(true)
+    setShowEditModal(false)
   }
 
   return (
     <section>
 
       <div className="page-header">
-
         <div>
           <h2>Productos</h2>
-          <p>
-            Administración de productos
-          </p>
+          <p>Administración de productos</p>
         </div>
-
-        <button
-          className="btn-primary"
-          onClick={handleToggleForm}
-        >
-          {showForm
-            ? 'Cerrar formulario'
-            : '+ Nuevo Producto'}
+        <button className="btn-primary" onClick={() => setShowCreateForm(v => !v)}>
+          {showCreateForm ? 'Cerrar formulario' : '+ Nuevo Producto'}
         </button>
-
       </div>
 
-      {showForm && (
+      {showCreateForm && (
         <ProductForm
-          editingProduct={editingProduct}
+          editingProduct={null}
           categories={state.categories || []}
           onCreate={handleCreate}
-          onUpdate={handleUpdate}
-          onCancel={handleCancel}
+          onCancel={() => setShowCreateForm(false)}
         />
       )}
 
@@ -97,6 +64,19 @@ function ProductsPage() {
         error={state.error}
         onEdit={handleEdit}
       />
+
+      <Modal
+        open={showEditModal}
+        title={`Editar producto · ${editingProduct?.name ?? ''}`}
+        onClose={handleCloseEdit}
+      >
+        <ProductForm
+          editingProduct={editingProduct}
+          categories={state.categories || []}
+          onUpdate={handleUpdate}
+          onCancel={handleCloseEdit}
+        />
+      </Modal>
 
     </section>
   )

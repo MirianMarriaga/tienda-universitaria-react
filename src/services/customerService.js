@@ -1,46 +1,57 @@
-import axios from 'axios'
+const API_URL = `${import.meta.env.VITE_API_URL}/api/customers`
 
-const API_URL = import.meta.env.VITE_API_URL
-
-const getAuthHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`
+function getAuthHeaders() {
+  return {
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+    'Content-Type': 'application/json'
   }
-})
-
-export const getAllCustomers = async () => {
-  const response = await axios.get(`${API_URL}/customers`, getAuthHeaders())
-  return response.data
 }
 
-export const getCustomerById = async (id) => {
-  const response = await axios.get(`${API_URL}/customers/${id}`, getAuthHeaders())
-  return response.data
+async function requestJson(url, options = {}) {
+  const response = await fetch(url, {
+    headers: {
+      ...getAuthHeaders(),
+      ...options.headers
+    },
+    ...options
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+
+  if (response.status === 204) return null
+
+  return response.json()
 }
 
-export const createCustomer = async (customer) => {
-  const response = await axios.post(`${API_URL}/customers`, customer, getAuthHeaders())
-  return response.data
+
+export function getCustomers() {
+  return requestJson(API_URL)
 }
 
-export const updateCustomer = async (id, customer) => {
-  const response = await axios.put(`${API_URL}/customers/${id}`, customer, getAuthHeaders())
-  return response.data
+export function createCustomer(data) {
+  return requestJson(API_URL, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
 }
 
-export const getAddressesByCustomer = async (customerId) => {
-  const response = await axios.get(
-    `${API_URL}/customers/${customerId}/addresses`,
-    getAuthHeaders()
-  )
-  return response.data
+export function updateCustomer(data) {
+  return requestJson(`${API_URL}/${data.id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
 }
 
-export const createAddress = async (customerId, address) => {
-  const response = await axios.post(
-    `${API_URL}/customers/${customerId}/addresses`,
-    address,
-    getAuthHeaders()
-  )
-  return response.data
+
+export function getCustomerAddresses(customerId) {
+  return requestJson(`${API_URL}/${customerId}/addresses`)
+}
+
+export function createCustomerAddress(customerId, address) {
+  return requestJson(`${API_URL}/${customerId}/addresses`, {
+    method: 'POST',
+    body: JSON.stringify(address)
+  })
 }
