@@ -1,5 +1,6 @@
  {/*
-import { useEffect, useState } from 'react'
+ 
+  import { useEffect, useState } from 'react'
 
 import {
   getBestSellingProducts,
@@ -41,13 +42,7 @@ function ReportsPage() {
         getTopCategories()
       ])
 
-      setReports({
-        bestSelling,
-        monthlyIncome,
-        topCustomers,
-        lowStock,
-        topCategories
-      })
+      setReports({ bestSelling, monthlyIncome, topCustomers, lowStock, topCategories })
 
     } catch (err) {
       setError('Error cargando reportes')
@@ -60,21 +55,8 @@ function ReportsPage() {
     loadReports()
   }, [])
 
-  if (loading) {
-    return (
-      <p className="center-text">
-        Cargando reportes...
-      </p>
-    )
-  }
-
-  if (error) {
-    return (
-      <p className="error-text center-text">
-        {error}
-      </p>
-    )
-  }
+  if (loading) return <p className="center-text">Cargando reportes...</p>
+  if (error)   return <p className="error-text center-text">{error}</p>
 
   return (
     <section>
@@ -86,10 +68,9 @@ function ReportsPage() {
         </div>
       </div>
 
-      
+    
       <div className="card">
         <h3>Productos más vendidos</h3>
-
         <table className="table">
           <thead>
             <tr>
@@ -98,7 +79,6 @@ function ReportsPage() {
               <th>Total vendido</th>
             </tr>
           </thead>
-
           <tbody>
             {reports.bestSelling.map((item, index) => (
               <tr key={item.productId}>
@@ -111,45 +91,27 @@ function ReportsPage() {
         </table>
       </div>
 
-     
-      <div className="dashboard-panel" style={{ marginTop: 24 }}>
+      <div className="dashboard-panel" style={{ marginTop: 0, marginBottom: 24 }}>
         <h3>Top productos vendidos</h3>
-
         <p>Productos con mayor salida</p>
-
         <div className="bar-chart">
           {reports.bestSelling.map((item) => {
-            const maxSales = Math.max(
-              ...reports.bestSelling.map(p => p.totalQuantitySold)
-            )
-
-            const heightPercent =
-              (item.totalQuantitySold / maxSales) * 100
-
+            const maxSales = Math.max(...reports.bestSelling.map(p => p.totalQuantitySold))
+            const heightPercent = (item.totalQuantitySold / maxSales) * 100
             return (
               <div key={item.productId} className="bar-col">
-                <span className="bar-label">
-                  {item.totalQuantitySold}
-                </span>
-
-                <div
-                  className="bar"
-                  style={{ height: `${heightPercent}%` }}
-                />
-
-                <span className="bar-month">
-                  {item.productName}
-                </span>
+                <span className="bar-label">{item.totalQuantitySold}</span>
+                <div className="bar" style={{ height: `${heightPercent}%` }} />
+                <span className="bar-month">{item.productName.split(' ')[0]}</span>
               </div>
             )
           })}
         </div>
       </div>
 
-   
+    
       <div className="card">
         <h3>Ingresos mensuales</h3>
-
         <table className="table">
           <thead>
             <tr>
@@ -158,7 +120,6 @@ function ReportsPage() {
               <th>Total</th>
             </tr>
           </thead>
-
           <tbody>
             {reports.monthlyIncome.map((item, index) => (
               <tr key={index}>
@@ -171,44 +132,27 @@ function ReportsPage() {
         </table>
       </div>
 
- 
-      <div className="dashboard-panel" style={{ marginTop: 24 }}>
+      <div className="dashboard-panel" style={{ marginTop: 0, marginBottom: 24 }}>
         <h3>Ingresos mensuales</h3>
         <p>Comportamiento financiero</p>
-
         <div className="bar-chart">
           {reports.monthlyIncome.map((item) => {
-            const maxIncome = Math.max(
-              ...reports.monthlyIncome.map(m => m.totalIncome)
-            )
-
-            const heightPercent =
-              (item.totalIncome / maxIncome) * 100
-
+            const maxIncome = Math.max(...reports.monthlyIncome.map(m => m.totalIncome))
+            const heightPercent = (item.totalIncome / maxIncome) * 100
             return (
               <div key={`${item.year}-${item.month}`} className="bar-col">
-                <span className="bar-label">
-                  ${(item.totalIncome / 1000000).toFixed(1)}M
-                </span>
-
-                <div
-                  className="bar"
-                  style={{ height: `${heightPercent}%` }}
-                />
-
-                <span className="bar-month">
-                  {item.month}
-                </span>
+                <span className="bar-label">${(item.totalIncome / 1000000).toFixed(1)}M</span>
+                <div className="bar" style={{ height: `${heightPercent}%` }} />
+                <span className="bar-month">{item.month}</span>
               </div>
             )
           })}
         </div>
       </div>
 
-    
+      
       <div className="card">
         <h3>Mejores clientes</h3>
-
         <table className="table">
           <thead>
             <tr>
@@ -217,7 +161,6 @@ function ReportsPage() {
               <th>Total gastado</th>
             </tr>
           </thead>
-
           <tbody>
             {reports.topCustomers.map((customer, index) => (
               <tr key={customer.customerId}>
@@ -230,9 +173,27 @@ function ReportsPage() {
         </table>
       </div>
 
+      <div className="dashboard-panel" style={{ marginTop: 0, marginBottom: 24 }}>
+        <h3>Clientes con mayor gasto</h3>
+        <p>Clientes más importantes</p>
+        <div className="bar-chart">
+          {reports.topCustomers.map((customer) => {
+            const maxSpent = Math.max(...reports.topCustomers.map(c => c.totalSpent))
+            const heightPercent = (customer.totalSpent / maxSpent) * 100
+            return (
+              <div key={customer.customerId} className="bar-col">
+                <span className="bar-label">${(customer.totalSpent / 1000000).toFixed(1)}M</span>
+                <div className="bar" style={{ height: `${heightPercent}%` }} />
+                <span className="bar-month">{customer.customerName.split(' ')[0]}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+   
       <div className="card">
         <h3>Productos con bajo stock</h3>
-
         <table className="table">
           <thead>
             <tr>
@@ -241,16 +202,11 @@ function ReportsPage() {
               <th>Mínimo</th>
             </tr>
           </thead>
-
           <tbody>
             {reports.lowStock.map((product) => (
               <tr key={product.productId}>
                 <td>{product.productName}</td>
-                <td>
-                  <span className="badge-error">
-                    {product.availableStock}
-                  </span>
-                </td>
+                <td><span className="badge-error">{product.availableStock}</span></td>
                 <td>{product.minimumStock}</td>
               </tr>
             ))}
@@ -258,10 +214,9 @@ function ReportsPage() {
         </table>
       </div>
 
-   
+    
       <div className="card">
         <h3>Categorías más vendidas</h3>
-
         <table className="table">
           <thead>
             <tr>
@@ -270,7 +225,6 @@ function ReportsPage() {
               <th>Total vendido</th>
             </tr>
           </thead>
-
           <tbody>
             {reports.topCategories.map((category, index) => (
               <tr key={category.categoryId}>
@@ -283,11 +237,31 @@ function ReportsPage() {
         </table>
       </div>
 
+      <div className="dashboard-panel" style={{ marginTop: 0, marginBottom: 24 }}>
+        <h3>Categorías más vendidas</h3>
+        <p>Rendimiento por categoría</p>
+        <div className="bar-chart">
+          {reports.topCategories.map((category) => {
+            const maxCategory = Math.max(...reports.topCategories.map(c => c.totalQuantitySold))
+            const heightPercent = (category.totalQuantitySold / maxCategory) * 100
+            return (
+              <div key={category.categoryId} className="bar-col">
+                <span className="bar-label">{category.totalQuantitySold}</span>
+                <div className="bar" style={{ height: `${heightPercent}%` }} />
+                <span className="bar-month">{category.categoryName}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
     </section>
   )
 }
 
-export default ReportsPage*/}
+export default ReportsPage
+
+*/}
 
 import { useEffect, useState } from 'react'
 

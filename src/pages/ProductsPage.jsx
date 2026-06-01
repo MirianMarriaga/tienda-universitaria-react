@@ -1,10 +1,10 @@
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useState, useEffect } from 'react'  // ← agrega useEffect
 
 import ProductForm from '../components/ProductC/ProductForm'
 import ProductList from '../components/ProductC/ProductList'
 
 import { ProductContext } from '../context/ProductContext'
-import { getCategories } from '../services/categoryService'
+import { getCategories } from '../services/categoryService'  // ← importa esto
 
 import {
   createProduct,
@@ -17,7 +17,7 @@ function ProductsPage() {
 
   const [editingProduct, setEditingProduct] = useState(null)
   const [showForm, setShowForm] = useState(false)
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState([])  // ← estado local de categorías
 
   useEffect(() => {
     getCategories()
@@ -32,14 +32,14 @@ function ProductsPage() {
   }
 
   async function handleUpdate(productData) {
-    const { id, ...rest } = productData
+    const { id, ...rest } = productData  // ← fix del mismo bug que tenías en customers
     await updateProduct(id, rest)
     await loadProducts()
     setEditingProduct(null)
     setShowForm(false)
   }
 
-  function handleEdit(product) {
+  function handleEdit(product) {  // ← faltaba esta función
     setEditingProduct(product)
     setShowForm(true)
   }
@@ -64,7 +64,7 @@ function ProductsPage() {
       {showForm && (
         <ProductForm
           editingProduct={editingProduct}
-          categories={categories}
+          categories={categories}  // ← ahora viene del estado local
           onCreate={handleCreate}
           onUpdate={handleUpdate}
           onCancel={() => setShowForm(false)}
@@ -73,7 +73,7 @@ function ProductsPage() {
 
       <ProductList
         products={state.products}
-        categories={categories}
+        categories={categories}  // ← también aquí
         onEdit={handleEdit}
       />
 

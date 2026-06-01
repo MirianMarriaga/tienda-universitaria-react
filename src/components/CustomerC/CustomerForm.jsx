@@ -232,7 +232,7 @@ function CustomerForm({ editingCustomer, onCreate, onUpdate, onCancel }) {
 
         </div>
 
-        {/* Botones del modal */}
+      
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingTop: 16, borderTop: '1px solid #f0f1f3', marginTop: 20 }}>
           <button type="button" className="btn-outline" onClick={onCancel}>Cerrar</button>
           <button type="submit" className="btn-primary">Guardar cambios</button>

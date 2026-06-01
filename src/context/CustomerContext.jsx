@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
-import { customerReducer, customerActions } from '../reducers/customerReducer'
+import { customerReducer, customerActions, initialState } from '../reducers/customerReducer'
 import { getAllCustomers, createCustomer, updateCustomer } from '../services/customerService'
 
 export const CustomerContext = createContext()
@@ -9,18 +9,17 @@ export function useCustomers() {
 }
 
 export function CustomerProvider({ children }) {
-  const [state, dispatch] = useReducer(customerReducer, {
-    customers: [],
-    loading: false,
-    error: null,
-    selected: null
-  })
+
+  const [state, dispatch] = useReducer(customerReducer, initialState)
 
   async function loadCustomers() {
     dispatch({ type: customerActions.SET_LOADING, payload: true })
     try {
       const data = await getAllCustomers()
-      dispatch({ type: customerActions.SET_CUSTOMERS, payload: Array.isArray(data) ? data : data.content ?? [] })
+      dispatch({
+        type: customerActions.SET_CUSTOMERS,
+        payload: Array.isArray(data) ? data : data.content ?? []
+      })
     } catch (error) {
       dispatch({ type: customerActions.SET_ERROR, payload: 'Error cargando clientes' })
     } finally {
@@ -31,7 +30,7 @@ export function CustomerProvider({ children }) {
   async function addCustomer(customerData) {
     try {
       const created = await createCustomer(customerData)
-      dispatch({ type: customerActions.SET_CUSTOMERS, payload: [...state.customers, created] })
+      dispatch({ type: customerActions.ADD_CUSTOMER, payload: created })
     } catch (error) {
       dispatch({ type: customerActions.SET_ERROR, payload: error.message })
     }
@@ -40,10 +39,7 @@ export function CustomerProvider({ children }) {
   async function editCustomer(id, customerData) {
     try {
       const updated = await updateCustomer(id, customerData)
-      dispatch({
-        type: customerActions.SET_CUSTOMERS,
-        payload: state.customers.map((c) => c.id === id ? updated : c)
-      })
+      dispatch({ type: customerActions.UPDATE_CUSTOMER, payload: updated })
     } catch (error) {
       dispatch({ type: customerActions.SET_ERROR, payload: error.message })
     }
@@ -62,7 +58,15 @@ export function CustomerProvider({ children }) {
   }, [])
 
   return (
-    <CustomerContext.Provider value={{ state, dispatch, loadCustomers, addCustomer, editCustomer, selectCustomer, clearSelected }}>
+    <CustomerContext.Provider value={{
+      state,
+      dispatch,
+      loadCustomers,
+      addCustomer,
+      editCustomer,
+      selectCustomer,
+      clearSelected
+    }}>
       {children}
     </CustomerContext.Provider>
   )

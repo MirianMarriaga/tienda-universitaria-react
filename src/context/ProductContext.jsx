@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { productReducer } from '../reducers/productReducer'
-import { getAllProducts } from '../services/productService'
+import { getAllProducts, createProduct, updateProduct } from '../services/productService'
 import { getCategories } from '../services/categoryService'
 
 export const ProductContext = createContext()
@@ -10,6 +10,7 @@ export function useProducts() {
 }
 
 export function ProductProvider({ children }) {
+
   const [state, dispatch] = useReducer(productReducer, {
     products: [],
     categories: [],
@@ -32,12 +33,36 @@ export function ProductProvider({ children }) {
     }
   }
 
+  async function addProduct(productData) {
+    try {
+      const created = await createProduct(productData)
+      dispatch({ type: 'ADD_PRODUCT', payload: created })
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message })
+    }
+  }
+
+  async function editProduct(id, productData) {
+    try {
+      const updated = await updateProduct(id, productData)
+      dispatch({ type: 'UPDATE_PRODUCT', payload: updated })
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message })
+    }
+  }
+
   useEffect(() => {
     loadProducts()
   }, [])
 
   return (
-    <ProductContext.Provider value={{ state, dispatch, loadProducts }}>
+    <ProductContext.Provider value={{
+      state,
+      dispatch,
+      loadProducts,
+      addProduct,
+      editProduct
+    }}>
       {children}
     </ProductContext.Provider>
   )
