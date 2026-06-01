@@ -5,8 +5,9 @@ export const customerActions = {
     SET_LOADING:     'SET_LOADING',
     SET_ERROR:       'SET_ERROR',
     SELECT_CUSTOMER: 'SELECT_CUSTOMER',
-    CLEAR_SELECTED:  'CLEAR_SELECTED'
-  }
+    CLEAR_SELECTED:  'CLEAR_SELECTED',
+    SET_SELECTED:    'SET_SELECTED'
+}
   
   export function customerReducer(state, action) {
     switch (action.type) {
@@ -64,7 +65,12 @@ export const customerActions = {
           ...state,
           selected: null
         }
-  
+        
+      case customerActions.SET_SELECTED:
+        return {
+          ...state,
+          selected: action.payload
+        }
       default:
         return state
     }

@@ -24,11 +24,12 @@ function CustomersPage() {
   }
 
   async function handleUpdate(customerData) {
-    await updateCustomer(customerData)
-    await loadCustomers()
-    setEditingCustomer(null)
-    setShowForm(false)
-  }
+  const { id, ...rest } = customerData
+  await updateCustomer(id, rest)
+  await loadCustomers()
+  setEditingCustomer(null)
+  setShowForm(false)
+}
 
   function handleEdit(customer) {
     setEditingCustomer(customer)

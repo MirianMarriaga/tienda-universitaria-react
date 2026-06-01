@@ -1,31 +1,26 @@
 import { useState, useEffect } from 'react'
-import { useCustomers } from '../../context/CustomerContext'
 
-const CustomerForm = () => {
+const CustomerForm = ({ editingCustomer, onCreate, onUpdate, onCancel }) => {
 
-  const { addCustomer, editCustomer, selected, clearSelected } = useCustomers()
-
-  // Estado del formulario — coincide exactamente con CustomerCreateRequest
-  // { identificationNumber, fullName, email, phone, status }
   const [form, setForm] = useState({
     identificationNumber: '',
     fullName: '',
     email: '',
     phone: '',
-    status: 'ACTIVE'   // ← siempre presente, tanto en create como en update
+    status: 'ACTIVE'
   })
 
   const [errors, setErrors] = useState({})
 
-  // Cuando cambia "selected" llena o limpia el formulario
+  // Cuando llega un cliente a editar, llena el formulario
   useEffect(() => {
-    if (selected) {
+    if (editingCustomer) {
       setForm({
-        identificationNumber: selected.identificationNumber || '',
-        fullName: selected.fullName || '',
-        email: selected.email || '',
-        phone: selected.phone || '',
-        status: selected.status || 'ACTIVE'
+        identificationNumber: editingCustomer.identificationNumber || '',
+        fullName: editingCustomer.fullName || '',
+        email: editingCustomer.email || '',
+        phone: editingCustomer.phone || '',
+        status: editingCustomer.status || 'ACTIVE'
       })
     } else {
       setForm({
@@ -37,7 +32,7 @@ const CustomerForm = () => {
       })
     }
     setErrors({})
-  }, [selected])
+  }, [editingCustomer])
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -45,13 +40,11 @@ const CustomerForm = () => {
 
   const validate = () => {
     const newErrors = {}
-    if (!form.identificationNumber.trim())
+    if (!editingCustomer && !form.identificationNumber.trim())
       newErrors.identificationNumber = 'ID Number is required'
     if (!form.fullName.trim())
       newErrors.fullName = 'Full name is required'
-    if (!form.email.trim())
-      newErrors.email = 'Email is required'
-    if (!/\S+@\S+\.\S+/.test(form.email))
+    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email))
       newErrors.email = 'Email is not valid'
     if (!form.phone.trim())
       newErrors.phone = 'Phone is required'
@@ -60,26 +53,22 @@ const CustomerForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       return
     }
 
-    if (selected) {
-      // PUT /api/customers/{id}
-      // CustomerUpdateRequest: { fullName, email, phone, status }
-      await editCustomer(selected.id, {
+    if (editingCustomer) {
+      await onUpdate({
+        id: editingCustomer.id,
         fullName: form.fullName,
         email: form.email,
         phone: form.phone,
         status: form.status
       })
     } else {
-      // POST /api/customers
-      // CustomerCreateRequest: { identificationNumber, fullName, email, phone, status }
-      await addCustomer({
+      await onCreate({
         identificationNumber: form.identificationNumber,
         fullName: form.fullName,
         email: form.email,
@@ -87,20 +76,17 @@ const CustomerForm = () => {
         status: form.status
       })
     }
-
-    clearSelected()
   }
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-4">
       <h2 className="text-lg font-bold mb-4">
-        {selected ? 'Edit Customer' : 'New Customer'}
+        {editingCustomer ? 'Edit Customer' : 'New Customer'}
       </h2>
 
       <div className="grid grid-cols-2 gap-4">
 
-        {/* ID Number — solo en create */}
-        {!selected && (
+        {!editingCustomer && (
           <div>
             <label className="block text-sm font-medium mb-1">ID Number</label>
             <input
@@ -117,7 +103,6 @@ const CustomerForm = () => {
           </div>
         )}
 
-        {/* Full Name */}
         <div>
           <label className="block text-sm font-medium mb-1">Full Name</label>
           <input
@@ -133,7 +118,6 @@ const CustomerForm = () => {
           )}
         </div>
 
-        {/* Email */}
         <div>
           <label className="block text-sm font-medium mb-1">Email</label>
           <input
@@ -150,7 +134,6 @@ const CustomerForm = () => {
           )}
         </div>
 
-        {/* Phone */}
         <div>
           <label className="block text-sm font-medium mb-1">Phone</label>
           <input
@@ -166,7 +149,6 @@ const CustomerForm = () => {
           )}
         </div>
 
-        {/* Status — siempre visible tanto en create como en update */}
         <div>
           <label className="block text-sm font-medium mb-1">Status</label>
           <select
@@ -187,18 +169,16 @@ const CustomerForm = () => {
           type="submit"
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
-          {selected ? 'Update' : 'Create'}
+          {editingCustomer ? 'Update' : 'Create'}
         </button>
 
-        {selected && (
-          <button
-            type="button"
-            onClick={clearSelected}
-            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onCancel}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          Cancel
+        </button>
       </div>
     </form>
   )

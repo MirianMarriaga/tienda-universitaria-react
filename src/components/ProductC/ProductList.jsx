@@ -1,12 +1,10 @@
-
 import { useProducts } from '../../context/ProductContext'
 
 const ProductList = () => {
-
-  const { products, loading, error, selectProduct } = useProducts()
+  const { state: { products, loading, error } } = useProducts()
 
   if (loading) return <p className="text-center">Loading products...</p>
-  if (error)   return <p className="text-red-500 text-center">{error}</p>
+  if (error) return <p className="text-red-500 text-center">{error}</p>
 
   return (
     <div className="overflow-x-auto">
@@ -27,17 +25,10 @@ const ProductList = () => {
               <td className="border border-gray-300 p-2">{product.sku}</td>
               <td className="border border-gray-300 p-2">{product.name}</td>
               <td className="border border-gray-300 p-2">{product.categoryId}</td>
+              <td className="border border-gray-300 p-2">${product.price?.toLocaleString()}</td>
+              <td className="border border-gray-300 p-2">{product.active ? '✅' : '❌'}</td>
               <td className="border border-gray-300 p-2">
-                ${product.price?.toLocaleString()}
-              </td>
-              <td className="border border-gray-300 p-2">
-                {product.active ? '✅' : '❌'}
-              </td>
-              <td className="border border-gray-300 p-2">
-                <button
-                  onClick={() => selectProduct(product)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                >
+                <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                   Edit
                 </button>
               </td>
@@ -45,7 +36,6 @@ const ProductList = () => {
           ))}
         </tbody>
       </table>
-
       {products.length === 0 && (
         <p className="text-center text-gray-500 mt-4">No products found</p>
       )}

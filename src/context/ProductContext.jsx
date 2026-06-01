@@ -1,11 +1,13 @@
-import { createContext, useEffect, useReducer } from 'react'
-
+import { createContext, useContext, useEffect, useReducer } from 'react'
 import { productReducer } from '../reducers/productReducer'
-
-import { getProducts } from '../services/productService'
+import { getAllProducts } from '../services/productService'
 import { getCategories } from '../services/categoryService'
 
 export const ProductContext = createContext()
+
+export function useProducts() {
+  return useContext(ProductContext)
+}
 
 export function ProductProvider({ children }) {
   const [state, dispatch] = useReducer(productReducer, {
@@ -18,19 +20,13 @@ export function ProductProvider({ children }) {
 
   async function loadProducts() {
     dispatch({ type: 'SET_LOADING', payload: true })
-
     try {
-      const products = await getProducts()
+      const products = await getAllProducts()
       const categories = await getCategories()
-
       dispatch({ type: 'SET_PRODUCTS', payload: products })
       dispatch({ type: 'SET_CATEGORIES', payload: categories })
-
     } catch (error) {
-      dispatch({
-        type: 'SET_ERROR',
-        payload: 'Error cargando productos'
-      })
+      dispatch({ type: 'SET_ERROR', payload: 'Error cargando productos' })
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false })
     }

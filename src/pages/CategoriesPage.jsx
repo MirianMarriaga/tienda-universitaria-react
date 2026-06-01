@@ -1,11 +1,3 @@
-{/* Agregar <input
-  type="text"
-  placeholder="Buscar por nombre..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  className="search-input"
-/> antes del form*/}
-
 import { useEffect, useState } from 'react'
 import CategoryForm from '../components/CategoryC/CategoryForm'
 import CategoryList from '../components/CategoryC/CategoryList'
@@ -55,6 +47,14 @@ function CategoriesPage() {
     setError('')
     setShowForm(false)
   }
+
+  async function handleUpdate(customerData) {
+  const { id, ...rest } = customerData 
+  await updateCustomer(id, rest)
+  await loadCustomers()
+  setEditingCustomer(null)
+  setShowForm(false)
+}
 
   return (
     <section>

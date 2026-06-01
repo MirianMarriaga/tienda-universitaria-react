@@ -1,9 +1,12 @@
-import { createContext, useEffect, useReducer } from 'react'
-import { customerReducer } from '../reducers/customerReducer'
-
-import { getCustomers } from '../services/customerService'
+import { createContext, useContext, useEffect, useReducer } from 'react'
+import { customerReducer, customerActions } from '../reducers/customerReducer'
+import { getAllCustomers, createCustomer, updateCustomer } from '../services/customerService'
 
 export const CustomerContext = createContext()
+
+export function useCustomers() {
+  return useContext(CustomerContext)
+}
 
 export function CustomerProvider({ children }) {
   const [state, dispatch] = useReducer(customerReducer, {
@@ -14,24 +17,44 @@ export function CustomerProvider({ children }) {
   })
 
   async function loadCustomers() {
-    dispatch({ type: 'SET_LOADING', payload: true })
-
+    dispatch({ type: customerActions.SET_LOADING, payload: true })
     try {
-      const data = await getCustomers()
-
-      dispatch({
-        type: 'SET_CUSTOMERS',
-        payload: data
-      })
-
+      const data = await getAllCustomers()
+      dispatch({ type: customerActions.SET_CUSTOMERS, payload: Array.isArray(data) ? data : data.content ?? [] })
     } catch (error) {
-      dispatch({
-        type: 'SET_ERROR',
-        payload: 'Error cargando clientes'
-      })
+      dispatch({ type: customerActions.SET_ERROR, payload: 'Error cargando clientes' })
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false })
+      dispatch({ type: customerActions.SET_LOADING, payload: false })
     }
+  }
+
+  async function addCustomer(customerData) {
+    try {
+      const created = await createCustomer(customerData)
+      dispatch({ type: customerActions.SET_CUSTOMERS, payload: [...state.customers, created] })
+    } catch (error) {
+      dispatch({ type: customerActions.SET_ERROR, payload: error.message })
+    }
+  }
+
+  async function editCustomer(id, customerData) {
+    try {
+      const updated = await updateCustomer(id, customerData)
+      dispatch({
+        type: customerActions.SET_CUSTOMERS,
+        payload: state.customers.map((c) => c.id === id ? updated : c)
+      })
+    } catch (error) {
+      dispatch({ type: customerActions.SET_ERROR, payload: error.message })
+    }
+  }
+
+  function selectCustomer(customer) {
+    dispatch({ type: customerActions.SET_SELECTED, payload: customer })
+  }
+
+  function clearSelected() {
+    dispatch({ type: customerActions.SET_SELECTED, payload: null })
   }
 
   useEffect(() => {
@@ -39,7 +62,7 @@ export function CustomerProvider({ children }) {
   }, [])
 
   return (
-    <CustomerContext.Provider value={{ state, dispatch, loadCustomers }}>
+    <CustomerContext.Provider value={{ state, dispatch, loadCustomers, addCustomer, editCustomer, selectCustomer, clearSelected }}>
       {children}
     </CustomerContext.Provider>
   )
