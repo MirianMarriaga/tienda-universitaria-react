@@ -1,8 +1,7 @@
-import { products } from '../../data/products'
+function CategoryList({ categories, onEdit, products = [] }) {  // ← recibe products
 
-function CategoryList({ categories, onEdit }) {
   function countProducts(categoryId) {
-    return products.filter((p) => p.categoryId === categoryId).length
+    return products.filter((p) => p.categoryId === categoryId).length  // ← usa el prop
   }
 
   return (

@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import CategoryForm from '../components/CategoryC/CategoryForm'
 import CategoryList from '../components/CategoryC/CategoryList'
 import { createCategory, getCategories } from '../services/categoryService'
+import { getAllProducts } from '../services/productService'  // ← importa esto
 
 function CategoriesPage() {
   const [categories, setCategories] = useState([])
+  const [products, setProducts] = useState([])             // ← agrega esto
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -16,9 +18,9 @@ function CategoriesPage() {
 
   useEffect(() => {
     loadCategories()
+    loadProducts()                                          // ← agrega esto
   }, [])
- 
-  
+
   async function loadCategories() {
     setLoading(true)
     setError('')
@@ -32,29 +34,30 @@ function CategoriesPage() {
     }
   }
 
-  async function handleCreate(newCategory) {
-  setError('')
-  try {
-    const created = await createCategory(newCategory)
-    setCategories((prev) => [...prev, created])
-    setShowForm(false)
-  } catch (err) {
-    setError(err.message)
+  async function loadProducts() {                          // ← agrega esto
+    try {
+      const data = await getAllProducts()
+      setProducts(Array.isArray(data) ? data : data.content ?? [])
+    } catch (err) {
+      console.error('Error cargando productos:', err)
+    }
   }
-}
+
+  async function handleCreate(newCategory) {
+    setError('')
+    try {
+      const created = await createCategory(newCategory)
+      setCategories((prev) => [...prev, created])
+      setShowForm(false)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   async function handleCancel() {
     setError('')
     setShowForm(false)
   }
-
-  async function handleUpdate(customerData) {
-  const { id, ...rest } = customerData 
-  await updateCustomer(id, rest)
-  await loadCustomers()
-  setEditingCustomer(null)
-  setShowForm(false)
-}
 
   return (
     <section>
@@ -80,14 +83,12 @@ function CategoriesPage() {
       />
 
       {showForm && (
-        <CategoryForm
-          onCreate={handleCreate}
-          onCancel={handleCancel}
-        />
+        <CategoryForm onCreate={handleCreate} onCancel={handleCancel} />
       )}
 
       <CategoryList
         categories={filteredCategories}
+        products={products}           // ← pásalos aquí
       />
     </section>
   )
