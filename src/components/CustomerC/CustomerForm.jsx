@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getAddressesByCustomer, createAddress } from '../../services/customerService'
 
 function CustomerForm({ editingCustomer, onCreate, onUpdate, onCancel }) {
 
@@ -32,6 +33,8 @@ function CustomerForm({ editingCustomer, onCreate, onUpdate, onCancel }) {
       setEmail('')
       setPhone('')
       setStatus('ACTIVE')
+      setAddresses([])
+      setShowAddressForm(false)
     }
     setErrors({})
   }, [editingCustomer])
@@ -39,9 +42,8 @@ function CustomerForm({ editingCustomer, onCreate, onUpdate, onCancel }) {
   async function loadAddresses(customerId) {
     try {
       setLoadingAddresses(true)
-      const res = await fetch(`/api/customers/${customerId}/addresses`)
-      const data = await res.json()
-      setAddresses(data)
+      const data = await getAddressesByCustomer(customerId)
+      setAddresses(Array.isArray(data) ? data : [])
     } catch (e) {
       console.error('Error cargando direcciones', e)
     } finally {
@@ -54,18 +56,12 @@ function CustomerForm({ editingCustomer, onCreate, onUpdate, onCancel }) {
     if (!street.trim() || !city.trim() || !addressState.trim()) return
 
     try {
-      const res = await fetch(`/api/customers/${editingCustomer.id}/addresses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerId: editingCustomer.id,
-          street,
-          city,
-          state: addressState,
-          country
-        })
+      const newAddress = await createAddress(editingCustomer.id, {
+        street,
+        city,
+        state: addressState,
+        country
       })
-      const newAddress = await res.json()
       setAddresses(prev => [...prev, newAddress])
       setStreet('')
       setCity('')

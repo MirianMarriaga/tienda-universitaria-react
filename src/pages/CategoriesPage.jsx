@@ -88,7 +88,7 @@ function CategoriesPage() {
 
       <CategoryList
         categories={filteredCategories}
-        products={products}           // ← pásalos aquí
+        products={products}
       />
     </section>
   )
