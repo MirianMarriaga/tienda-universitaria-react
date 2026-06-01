@@ -1,26 +1,13 @@
+import { requestJson } from './apiClient'
+
 const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`
 
-async function requestJson(url, options = {}) {
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    },
-    ...options
-  })
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
-  if (response.status === 204) return null
-  return response.json()
-}
-
 export async function getOrders() {
-  return requestJson(API_URL, { method: 'GET' })
+  return requestJson(API_URL)
 }
 
 export async function getOrderById(id) {
-  return requestJson(`${API_URL}/${id}`, { method: 'GET' })
+  return requestJson(`${API_URL}/${id}`)
 }
 
 export async function createOrder(orderData) {
@@ -44,9 +31,4 @@ export async function deliverOrder(id) {
 
 export async function cancelOrder(id) {
   return requestJson(`${API_URL}/${id}/cancel`, { method: 'PUT' })
-}
-
-export async function filterOrders(params) {
-  const query = new URLSearchParams(params).toString()
-  return requestJson(`${API_URL}/filter?${query}`, { method: 'GET' })
 }
