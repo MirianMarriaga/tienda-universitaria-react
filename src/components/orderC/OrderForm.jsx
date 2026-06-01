@@ -4,32 +4,66 @@ import { getAllProducts } from '../../services/productService'
 
 function OrderForm({ onCreate, onCancel }) {
   const [customers, setCustomers] = useState([])
-  const [products, setProducts]   = useState([])
+  const [products, setProducts] = useState([])
   const [addresses, setAddresses] = useState([])
   const [loadingAddresses, setLoadingAddresses] = useState(false)
 
   const [customerId, setCustomerId] = useState('')
-  const [addressId, setAddressId]   = useState('')
+  const [addressId, setAddressId] = useState('')
   const [items, setItems] = useState([{ productId: '', quantity: 1 }])
-  const [error, setError] = useState('')
+
+  const [errors, setErrors] = useState({})
 
   useEffect(() => {
     getAllCustomers()
       .then(data => setCustomers(Array.isArray(data) ? data : data.content ?? []))
       .catch(() => {})
+
     getAllProducts()
       .then(data => setProducts(Array.isArray(data) ? data : data.content ?? []))
       .catch(() => {})
   }, [])
 
   useEffect(() => {
-    if (!customerId) { setAddresses([]); setAddressId(''); return }
+    if (!customerId) {
+      setAddresses([])
+      setAddressId('')
+      return
+    }
+
     setLoadingAddresses(true)
+
     getAddressesByCustomer(customerId)
-      .then(data => { setAddresses(Array.isArray(data) ? data : []); setAddressId('') })
+      .then(data => {
+        setAddresses(Array.isArray(data) ? data : [])
+        setAddressId('')
+      })
       .catch(() => setAddresses([]))
       .finally(() => setLoadingAddresses(false))
+
   }, [customerId])
+
+  function validate() {
+    const newErrors = {}
+
+    if (!customerId) {
+      newErrors.customerId = 'Selecciona un cliente'
+    }
+
+    if (!addressId) {
+      newErrors.addressId = 'Selecciona una dirección'
+    }
+
+    if (items.some(item => !item.productId)) {
+      newErrors.items = 'Completa todos los productos'
+    }
+
+    if (items.some(item => Number(item.quantity) <= 0)) {
+      newErrors.quantity = 'La cantidad debe ser mayor a 0'
+    }
+
+    return newErrors
+  }
 
   function handleAddItem() {
     setItems([...items, { productId: '', quantity: 1 }])
@@ -40,30 +74,48 @@ function OrderForm({ onCreate, onCancel }) {
   }
 
   function handleItemChange(index, field, value) {
-    setItems(items.map((item, i) => i === index ? { ...item, [field]: value } : item))
+    setItems(
+      items.map((item, i) =>
+        i === index
+          ? { ...item, [field]: value }
+          : item
+      )
+    )
   }
 
   function calculateTotal() {
     return items.reduce((sum, item) => {
-      const product = products.find(p => p.id === parseInt(item.productId))
-      return sum + (product ? Number(product.price) * item.quantity : 0)
+      const product = products.find(
+        p => p.id === parseInt(item.productId)
+      )
+
+      return sum + (
+        product
+          ? Number(product.price) * item.quantity
+          : 0
+      )
     }, 0)
   }
 
   function handleSubmit(e) {
     e.preventDefault()
-    setError('')
 
-    if (!customerId) { setError('Selecciona un cliente'); return }
-    if (!addressId)  { setError('Selecciona una dirección'); return }
-    if (items.some(i => !i.productId)) { setError('Completa todos los productos'); return }
+    const validationErrors = validate()
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
+    setErrors({})
 
     onCreate({
       customerId: parseInt(customerId),
-      addressId:  parseInt(addressId),
+      addressId: parseInt(addressId),
+
       items: items.map(item => ({
         productId: parseInt(item.productId),
-        quantity:  parseInt(item.quantity)
+        quantity: parseInt(item.quantity)
       }))
     })
   }
@@ -72,71 +124,179 @@ function OrderForm({ onCreate, onCancel }) {
     <form className="category-form" onSubmit={handleSubmit}>
       <h3>Nuevo Pedido</h3>
 
-      {error && <p style={{ color: '#ef4444', marginBottom: 8 }}>{error}</p>}
-
       <div className="form-group">
         <label>Cliente</label>
-        <select value={customerId} onChange={e => { setCustomerId(e.target.value); setAddressId('') }}>
-          <option value="">Seleccionar cliente</option>
-          {customers.map(c => (
-            <option key={c.id} value={c.id}>{c.fullName}</option>
-          ))}
-        </select>
-      </div>
 
-      <div className="form-group">
-        <label>Dirección</label>
-        <select value={addressId} onChange={e => setAddressId(e.target.value)} disabled={!customerId || loadingAddresses}>
-          <option value="">
-            {loadingAddresses ? 'Cargando...' : 'Seleccionar dirección'}
-          </option>
-          {addresses.map(a => (
-            <option key={a.id} value={a.id}>{a.street}, {a.city}</option>
+        <select
+          value={customerId}
+          onChange={e => {
+            setCustomerId(e.target.value)
+            setAddressId('')
+          }}
+        >
+          <option value="">Seleccionar cliente</option>
+
+          {customers.map(c => (
+            <option key={c.id} value={c.id}>
+              {c.fullName}
+            </option>
           ))}
         </select>
-        {customerId && !loadingAddresses && addresses.length === 0 && (
-          <p style={{ color: '#f59e0b', fontSize: 12, marginTop: 4 }}>
-            Este cliente no tiene direcciones registradas
+
+        {errors.customerId && (
+          <p className="error-text">
+            {errors.customerId}
           </p>
         )}
       </div>
 
       <div className="form-group">
+        <label>Dirección</label>
+
+        <select
+          value={addressId}
+          disabled={!customerId || loadingAddresses}
+          onChange={e => setAddressId(e.target.value)}
+        >
+          <option value="">
+            {loadingAddresses
+              ? 'Cargando...'
+              : 'Seleccionar dirección'}
+          </option>
+
+          {addresses.map(a => (
+            <option key={a.id} value={a.id}>
+              {a.street}, {a.city}
+            </option>
+          ))}
+        </select>
+
+        {errors.addressId && (
+          <p className="error-text">
+            {errors.addressId}
+          </p>
+        )}
+
+        {customerId &&
+          !loadingAddresses &&
+          addresses.length === 0 && (
+            <p style={{
+              color: '#f59e0b',
+              fontSize: 12,
+              marginTop: 4
+            }}>
+              Este cliente no tiene direcciones registradas
+            </p>
+        )}
+      </div>
+
+      <div className="form-group">
         <label>Productos</label>
+
         {items.map((item, index) => (
-          <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <div
+            key={index}
+            style={{
+              display: 'flex',
+              gap: 8,
+              marginBottom: 8
+            }}
+          >
             <select
               value={item.productId}
-              onChange={e => handleItemChange(index, 'productId', e.target.value)}
               style={{ flex: 2 }}
+              onChange={e =>
+                handleItemChange(
+                  index,
+                  'productId',
+                  e.target.value
+                )
+              }
             >
-              <option value="">Seleccionar producto</option>
+              <option value="">
+                Seleccionar producto
+              </option>
+
               {products.map(p => (
                 <option key={p.id} value={p.id}>
-                  {p.name} — ${Number(p.price).toLocaleString('es-CO')}
+                  {p.name} — $
+                  {Number(p.price)
+                    .toLocaleString('es-CO')}
                 </option>
               ))}
             </select>
+
             <input
               type="number"
               min="1"
               value={item.quantity}
-              onChange={e => handleItemChange(index, 'quantity', e.target.value)}
               style={{ flex: 1 }}
+              onChange={e =>
+                handleItemChange(
+                  index,
+                  'quantity',
+                  e.target.value
+                )
+              }
             />
+
             {items.length > 1 && (
-              <button type="button" className="btn-danger" onClick={() => handleRemoveItem(index)}>✕</button>
+              <button
+                type="button"
+                className="btn-danger"
+                onClick={() =>
+                  handleRemoveItem(index)
+                }
+              >
+                ✕
+              </button>
             )}
           </div>
         ))}
-        <button type="button" className="btn-outline" onClick={handleAddItem}>+ Agregar producto</button>
+
+        {errors.items && (
+          <p className="error-text">
+            {errors.items}
+          </p>
+        )}
+
+        {errors.quantity && (
+          <p className="error-text">
+            {errors.quantity}
+          </p>
+        )}
+
+        <button
+          type="button"
+          className="btn-outline"
+          onClick={handleAddItem}
+        >
+          + Agregar producto
+        </button>
       </div>
 
-      <p><strong>Total estimado: ${calculateTotal().toLocaleString('es-CO')}</strong></p>
+      <p>
+        <strong>
+          Total estimado: $
+          {calculateTotal().toLocaleString('es-CO')}
+        </strong>
+      </p>
 
       <div className="form-actions">
-        <button type="button" className="btn-secondary" onClick={onCancel}>Cancelar</button>
-        <button type="submit" className="btn-primary">Crear pedido</button>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={onCancel}
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          className="btn-primary"
+        >
+          Crear pedido
+        </button>
       </div>
     </form>
   )
