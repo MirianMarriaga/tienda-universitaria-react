@@ -8,12 +8,12 @@ function CustomerList({ customers, loading, error, onEdit }) {
       <table className="table">
         <thead>
           <tr>
-            <th>Full Name</th>
-            <th>ID Number</th>
+            <th>Nombre completo</th>
+            <th>ID</th>
             <th>Email</th>
-            <th>Phone</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>Telefono</th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -24,7 +24,7 @@ function CustomerList({ customers, loading, error, onEdit }) {
               <td>{customer.email}</td>
               <td>{customer.phone}</td>
               <td>
-                <span className={customer.status === 'ACTIVE' ? 'badge-success' : 'badge-error'}>
+                <span className={customer.status === 'ACTIVO' ? 'badge-success' : 'badge-error'}>
                   {customer.status}
                 </span>
               </td>
@@ -39,7 +39,7 @@ function CustomerList({ customers, loading, error, onEdit }) {
       </table>
 
       {customers.length === 0 && (
-        <p className="center-text muted-text">No customers found</p>
+        <p className="center-text muted-text">No se encontraron clientes</p>
       )}
     </div>
   )

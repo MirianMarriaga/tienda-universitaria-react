@@ -2,20 +2,19 @@ import { useContext, useState } from 'react'
 
 import CustomerForm from '../components/CustomerC/CustomerForm'
 import CustomerList from '../components/CustomerC/CustomerList'
+import Modal from '../Modal'
 
 import { CustomerContext } from '../context/CustomerContext'
 
-import {
-  createCustomer,
-  updateCustomer
-} from '../services/customerService'
+import { createCustomer, updateCustomer } from '../services/customerService'
 
 function CustomersPage() {
 
   const { state, loadCustomers } = useContext(CustomerContext)
 
-  const [editingCustomer, setEditingCustomer] = useState(null)
   const [showForm, setShowForm] = useState(false)
+  const [editingCustomer, setEditingCustomer] = useState(null)
+  const [showEditModal, setShowEditModal] = useState(false)
 
   async function handleCreate(customerData) {
     await createCustomer(customerData)
@@ -24,16 +23,21 @@ function CustomersPage() {
   }
 
   async function handleUpdate(customerData) {
-  const { id, ...rest } = customerData
-  await updateCustomer(id, rest)
-  await loadCustomers()
-  setEditingCustomer(null)
-  setShowForm(false)
-}
+    const { id, ...rest } = customerData
+    await updateCustomer(id, rest)
+    await loadCustomers()
+    setEditingCustomer(null)
+    setShowEditModal(false)
+  }
 
   function handleEdit(customer) {
     setEditingCustomer(customer)
-    setShowForm(true)
+    setShowEditModal(true)
+  }
+
+  function handleCancelEdit() {
+    setEditingCustomer(null)
+    setShowEditModal(false)
   }
 
   return (
@@ -55,9 +59,8 @@ function CustomersPage() {
 
       {showForm && (
         <CustomerForm
-          editingCustomer={editingCustomer}
+          editingCustomer={null}
           onCreate={handleCreate}
-          onUpdate={handleUpdate}
           onCancel={() => setShowForm(false)}
         />
       )}
@@ -68,6 +71,20 @@ function CustomersPage() {
         error={state.error}
         onEdit={handleEdit}
       />
+
+      <Modal
+        open={showEditModal}
+        title={`Cliente · ${editingCustomer?.fullName ?? ''}`}
+        onClose={handleCancelEdit}
+      >
+        {editingCustomer && (
+          <CustomerForm
+            editingCustomer={editingCustomer}
+            onUpdate={handleUpdate}
+            onCancel={handleCancelEdit}
+          />
+        )}
+      </Modal>
 
     </section>
   )
