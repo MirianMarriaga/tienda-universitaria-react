@@ -124,7 +124,7 @@ function CustomersPage() {
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [search, setSearch]                  = useState('')
   const [filterStatus, setFilterStatus]      = useState('')
-  const [formError, setFormError]            = useState('')  // ← NUEVO
+  const [formError, setFormError]            = useState('')
 
   const filteredCustomers = state.customers.filter((c) => {
     const term = search.toLowerCase()
